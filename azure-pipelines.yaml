@@ -1,0 +1,35 @@
+name: $(BuildDefinitionName).$(DayOfYear)$(Rev:.r)
+trigger:
+  batch: 'true'
+  branches:
+    include:
+      - master
+      - feature/*
+
+parameters:
+- name: Enviroment
+  displayName: "Choose Enviroment:"
+  type: string
+  default: Test
+  values:
+    - Test
+    - Production
+
+variables:
+- group: ${{parameters.Enviroment}}TFLandingZone
+- name: ENVIRONMENT
+  value: ${{parameters.Enviroment}}
+- name: TERRAFORM_VERSION
+  value: 0.13.5
+
+stages:
+- template: Terraform-Stages.yaml
+  parameters:
+    environment: ${{parameters.Enviroment}}
+  
+    # Pass variables as environment variables to Terraform
+    # Terraform recognizes TF_VAR prefixed environment variables
+    TerraformEnvVariables:
+      TF_VAR_location: $(settings.location)
+      TF_VAR_devops_project: $(settings.project)
+      TF_VAR_department: $(settings.department)

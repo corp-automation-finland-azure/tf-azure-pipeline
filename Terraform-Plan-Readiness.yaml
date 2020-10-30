@@ -1,0 +1,249 @@
+parameters:
+  azdoOrganization: $(admin.azureDevOpsOrganization)
+  azdoProject: $(admin.azureDevOpsProject)
+  terraformVersion: $(TERRAFORM_VERSION)
+  terraformStateKey: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
+  terraformDirectory: $(terraform.path)
+  terraformBackendServiceConnection: Terraform
+  terraformEnvironmentServiceConnection: Terraform
+  terraformBackendResourceGroup: $(terraform.resourceGroup)
+  terraformBackendStorageAccount: $(terraform.storageAccount)
+  terraformBackendStorageContainer: $(terraform.storageAccountContainer)
+  terraformBackendLocation: $(terraform.backendLocation)
+
+jobs:
+- job: Setup
+  displayName: 'Setup Terraform Backend'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - checkout: self
+    persistCredentials: true
+  - task: AzureCLI@1
+    displayName: Set Terraform backend
+    # condition: and(succeeded(), eq('${{ parameters.provisionStorage }}', true))
+    inputs:
+      azureSubscription: ${{ parameters.terraformBackendServiceConnection }}
+      scriptLocation: inlineScript
+      inlineScript: |
+        set -eu  # fail on error
+        RG='${{ parameters.terraformBackendResourceGroup }}'
+        export AZURE_STORAGE_ACCOUNT='${{ parameters.terraformBackendStorageAccount }}'
+        export AZURE_STORAGE_KEY="$(az storage account keys list -g "$RG" -n "$AZURE_STORAGE_ACCOUNT" --query '[0].value' -o tsv)"
+        if test -z "$AZURE_STORAGE_KEY"; then
+          az configure --defaults group="$RG" location='${{ parameters.terraformBackendLocation }}'
+          az group create -n "$RG" -o none
+          az storage account create -n "$AZURE_STORAGE_ACCOUNT" -o none
+          export AZURE_STORAGE_KEY="$(az storage account keys list -g "$RG" -n "$AZURE_STORAGE_ACCOUNT" --query '[0].value' -o tsv)"
+        fi
+        container='${{ parameters.terraformBackendStorageContainer }}'
+        if ! az storage container show -n "$container" -o none 2>/dev/null; then
+          az storage container create -n "$container" -o none
+        fi
+        blob='${{ parameters.terraformStateKey }}'
+        if [[ $(az storage blob exists -c "$container" -n "$blob" --query exists) = "true" ]]; then
+          if [[ $(az storage blob show -c "$container" -n "$blob" --query "properties.lease.status=='locked'") = "true" ]]; then
+            echo "State is leased"
+            lock_jwt=$(az storage blob show -c "$container" -n "$blob" --query metadata.terraformlockid -o tsv)
+            if [ "$lock_jwt" != "" ]; then
+              lock_json=$(base64 -d <<< "$lock_jwt")
+              echo "State is locked"
+              jq . <<< "$lock_json"
+            fi
+            if [ "${TERRAFORM_BREAK_LEASE:-}" != "" ]; then
+              az storage blob lease break -c "$container" -b "$blob"
+            else
+              echo "If you're really sure you want to break the lease, rerun the pipeline with variable TERRAFORM_BREAK_LEASE set to 1."
+              exit 1
+            fi
+          fi
+        fi
+      addSpnToEnvironment: true
+
+- job: Validate
+  displayName: 'Terraform Validate'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - checkout: self
+  - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+    displayName: Install Terraform
+    inputs:
+      terraformVersion: ${{parameters.terraformVersion}}
+  - task: DownloadSecureFile@1
+    name: gitprivssh
+    displayName: 'Download private key for git access'
+    inputs:
+      secureFile: gitkey
+  # cat $(gitprivssh.secureFilePath) to show the key
+  - script: |
+      chmod 400 $(gitprivssh.secureFilePath)
+  - task: AzureCLI@1
+    displayName: Terraform credentials
+    inputs:
+      azureSubscription: ${{ parameters.terraformEnvironmentServiceConnection }}
+      scriptLocation: inlineScript
+      inlineScript: |
+        set -eu
+        subscriptionId=$(az account show --query id -o tsv)
+        echo "##vso[task.setvariable variable=ARM_CLIENT_ID]$servicePrincipalId"
+        echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET;issecret=true]$servicePrincipalKey"
+        echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$subscriptionId"
+        echo "##vso[task.setvariable variable=ARM_TENANT_ID]$tenantId"
+      addSpnToEnvironment: true
+  - task: AzureCLI@1
+    name: tfinit
+    displayName: Terraform init validate
+    inputs:
+      azureSubscription: ${{ parameters.terraformBackendServiceConnection }}
+      scriptLocation: inlineScript
+      inlineScript: |
+        set -eux  # fail on error
+        eval `ssh-agent -s`
+        ssh-add /home/vsts/work/_temp/gitkey
+        subscriptionId=$(az account show --query id -o tsv)
+        terraform init \
+          -backend-config=storage_account_name=${{ parameters.terraformBackendStorageAccount }} \
+          -backend-config=container_name=${{ parameters.terraformBackendStorageContainer }} \
+          -backend-config=key=${{ parameters.terraformStateKey }} \
+          -backend-config=resource_group_name=${{ parameters.terraformBackendResourceGroup }} \
+          -backend-config=subscription_id=$subscriptionId \
+          -backend-config=tenant_id=$tenantId \
+          -backend-config=client_id=$servicePrincipalId \
+          -backend-config=client_secret="$servicePrincipalKey"
+        terraform validate
+      # parameters.terraformDirectory == /home/vsts/work/1/s/azinfra
+      workingDirectory: ${{ parameters.terraformDirectory }}
+      addSpnToEnvironment: true
+
+- job: TFLint
+  displayName: 'TFLint'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - checkout: self
+  - script: |
+      export PATH=$PATH:/home/vsts/.local/bin
+      python3 -m pip install --upgrade pip
+      python3 -m pip install setuptools
+      python3 -m pip install lastversion
+      TFLINT_VERSION=$(lastversion wata727/tflint)
+      if ! tflint --version | grep -q ${TFLINT_VERSION}; then
+        curl -L "$(curl -Ls https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" -o tflint.zip && unzip tflint.zip && rm tflint.zip
+        install tflint /home/vsts/.local/bin
+      fi
+      cd ${{parameters.terraformDirectory}}
+      tflint
+    displayName: 'Run TFLint'
+    continueOnError: 'true'
+
+- job: Readiness
+  displayName: 'Build Readiness'
+  variables:
+    ORGANIZATION: $(parameters.azdoOrganization)
+    PROJECT: $(parameters.azdoProject)
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - checkout: self
+    clean: true
+    persistCredentials: true
+  - script: |
+      BRANCH=`echo $(Build.SourceBranch) | sed 's/refs\/heads\///'`
+      echo "source branch $BRANCH"
+      echo "##vso[task.setvariable variable=BRANCH]$BRANCH"
+    displayName: 'Set Branch'
+  - script: |
+      echo "----------${{parameters.terraformStateKey}}---------"
+      git --version
+      git config --global user.email "azdo@myorg.com"
+      git config --global user.name "azdo"
+      git checkout $(BRANCH)
+      git pull
+      git branch -a
+      git status
+    displayName: 'Checkout $(BRANCH)'
+    workingDirectory: ${{parameters.terraformDirectory}}
+  - script: |
+      v=`grep -d skip -Pz --only-matching '(?<=variable)(\n|.)*?(?=})' * | grep description`
+      if [ -z "${v// }" ]
+      then
+        echo "$v FAIL: Variables should have a description...  See https://$(ORGANIZATION).visualstudio.com/$(PROJECT)/_wiki/wikis/Terraform.wiki?wikiVersion=GBwikiMaster&pagePath=%2FDevelopment%20Standards%2FTerraform%2Fv3%20Code%20Standards&anchor=variables"
+        exit 1
+      else
+        echo "$v SUCCESS:  all variables have a description"
+      fi
+    workingDirectory: ${{parameters.terraformDirectory}}
+    displayName: 'Variables have Description'
+    enabled: false
+  - script: |
+      cat <<EOT > README.md
+      # $(Build.Repository.Name) - $(Build.DefinitionName)
+      
+      [![Build status](https://$(ORGANIZATION).visualstudio.com/$(PROJECT)/_apis/build/status/$(Build.Repository.Name)%20Repo/$(Build.DefinitionName))](https://$(ORGANIZATION).visualstudio.com/$(PROJECT)/_build/latest?definitionId=$(System.DefinitionId))
+      
+      ___
+      
+      ## Usage
+      
+      ADD USAGE DOCUMENTATION
+      
+      ___
+      
+      ## Inputs and Outputs
+      
+      _Generated with [terraform-docs](https://github.com/segmentio/terraform-docs) and [pre-commit](https://www.unixdaemon.net/tools/terraform-precommit-hooks/)_
+      
+      <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+      
+      <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+      
+      EOT
+    workingDirectory: ${{parameters.terraformDirectory}}
+    displayName: 'Check for README.md, and create if missing'
+  - script: |
+      # this is the directory where tools are installed
+      export PATH=$PATH:/home/vsts/.local/bin
+      # we install some of the tools needed for pre-commit hooks
+      # python3 -m pip install --upgrade pip
+      # python3 -m pip install setuptools
+      python3 -m pip install pre-commit
+   
+      curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-linux-amd64")" > terraform-docs && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
+      curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
+      
+      # DIR=~/.git-template
+      # git config --global init.templateDir ${DIR}
+      # pre-commit init-templatedir -t pre-commit ${DIR}
+
+      git init
+      cat <<EOF > .pre-commit-config.yaml
+      - repo: git://github.com/antonbabenko/pre-commit-terraform
+        rev: v1.39.0
+        hooks:
+          - id: terraform_fmt
+          - id: terraform_docs
+          # - id: terraform_validate_no_variables
+      EOF
+      git add .pre-commit-config.yaml
+      # pre-commit autoupdate (comment out until 0.12)
+      echo "pre-commit run --files *"
+      pre-commit run --files *
+      if [ "$?" -eq "1" ]
+      then
+        echo "... second pre-commit attempt ..."
+        pre-commit run --files *
+      fi
+    displayName: 'Run pre-commit-terraform on $(terraformDirectory)'
+    workingDirectory: ${{parameters.terraformDirectory}}
+    failOnStderr: false
+    continueOnError: true
+  # - script: |
+  #     git branch -a
+  #     git add .
+  #     git commit -am 'code readiness - linting, formatting, docs [***NO_CI***]'
+  #     git push
+  #   displayName: 'Commit code corrections to $(BRANCH)'
+  #   workingDirectory: ${{parameters.terraformDirectory}}
+  #   continueOnError: true
+

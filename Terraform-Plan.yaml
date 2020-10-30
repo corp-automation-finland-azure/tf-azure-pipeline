@@ -1,0 +1,21 @@
+jobs:
+- job: Plan
+  displayName: 'Terraform Plan'
+  pool:
+    vmImage: 'ubuntu-latest'
+  workspace:
+    clean: all
+  steps:
+  - template: Terraform-Plan-Steps.yaml
+    parameters:
+      azdoOrganization: $(admin.azureDevOpsOrganization)
+      azdoProject: $(admin.azureDevOpsProject)
+      terraformVersion: $(TERRAFORM_VERSION)
+      terraformStateKey: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
+      terraformDirectory: $(terraform.path)
+      terraformBackendServiceConnection: Terraform
+      terraformEnvironmentServiceConnection: Terraform
+      terraformBackendResourceGroup: $(terraform.resourceGroup)
+      terraformBackendStorageAccount: $(terraform.storageAccount)
+      terraformBackendStorageContainer: $(terraform.storageAccountContainer)
+      terraformBackendLocation: $(terraform.backendLocation)

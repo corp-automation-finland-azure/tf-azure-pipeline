@@ -1,0 +1,13 @@
+jobs:
+- deployment: Apply
+  displayName: 'Terraform Apply'
+  environment: Test
+  pool:
+    vmImage: 'ubuntu-latest'
+  workspace:
+    clean: all
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - template: Terraform-Apply-Steps.yaml 

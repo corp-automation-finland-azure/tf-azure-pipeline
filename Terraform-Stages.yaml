@@ -1,0 +1,20 @@
+stages:
+- stage: Lint
+  displayName: 'Linting and Readiness Checks'
+  jobs:
+  - template: Terraform-Plan-Readiness.yaml
+
+- stage: Plan
+  displayName: 'Terraform Plan'
+  jobs:
+  - template: Terraform-Plan.yaml
+
+- stage: Publish
+  displayName: 'Publish Plan to Wiki'
+  jobs:
+  - template: Terraform-Publish-Plan-To-Wiki.yaml
+
+- stage: Apply
+  displayName: 'Terraform Apply'
+  jobs:
+  - template: Terraform-Apply.yaml

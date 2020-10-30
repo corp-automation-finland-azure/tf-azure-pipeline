@@ -1,0 +1,78 @@
+steps:
+  - checkout: self
+    clean: true
+    persistCredentials: true
+  - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+    displayName: Install Terraform
+    inputs:
+      terraformVersion: ${{parameters.terraformVersion}}
+  - task: DownloadSecureFile@1
+    name: gitprivssh
+    displayName: 'Download private key for git access'
+    inputs:
+      secureFile: gitkey
+  # cat $(gitprivssh.secureFilePath) to show the key
+  - script: |
+      chmod 400 $(gitprivssh.secureFilePath)
+  - task: AzureCLI@1
+    displayName: 'Setup Authentication'
+    inputs:
+      azureSubscription: ${{ parameters.terraformEnvironmentServiceConnection }}
+      addSpnToEnvironment: true
+      scriptLocation: inlineScript
+      failOnStandardError: 'true'
+      inlineScript: |   
+        echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(az account show --query="id" -o tsv)"
+        echo "##vso[task.setvariable variable=ARM_CLIENT_ID]${servicePrincipalId}"
+        echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET]${servicePrincipalKey}"
+        echo "##vso[task.setvariable variable=ARM_TENANT_ID]$(az account show --query="tenantId" -o tsv)"
+        echo "##vso[task.setvariable variable=ARM_ACCESS_KEY]$(az storage account keys list -n ${{parameters.terraformBackendStorageAccount}} --query="[0].value" -o tsv)"
+  - script: |
+      git config --global --list | grep url. | awk -F '.instead' '{print $1}' | while read line
+      do
+        echo $line
+      git config --global --remove-section $line
+      done
+      git config --global url."https://azdo:$(System.AccessToken)@dev.azure.com/organization".insteadOf https://dev.azure.com/organization
+      git config --global url."https://azdo:$(System.AccessToken)@organization".insteadOf https://organization
+      git init
+    displayName: 'Redirect git URLs to use the Access Token So Modules Can Be Pulled In'
+  - script: |
+      set -eux  # fail on error
+      eval `ssh-agent -s`
+      ssh-add /home/vsts/work/_temp/gitkey
+      terraform init \
+        -backend-config=storage_account_name=${{ parameters.terraformBackendStorageAccount }} \
+        -backend-config=container_name=${{ parameters.terraformBackendStorageContainer }} \
+        -backend-config=key=${{ parameters.terraformStateKey }} \
+        -backend-config=resource_group_name=${{ parameters.terraformBackendResourceGroup }} \
+        -backend-config=subscription_id=$ARM_SUBSCRIPTION_ID \
+        -backend-config=tenant_id=$ARM_TENANT_ID \
+        -backend-config=client_id=$ARM_CLIENT_ID \
+        -backend-config=client_secret="$ARM_CLIENT_SECRET" \
+        -no-color \
+        -input=false
+      echo "------------------------------------build number--------------------"
+      echo ${BUILD_BUILDNUMBER}
+      terraform plan -out=${BUILD_BUILDNUMBER}.tfplan -no-color -input=false
+    displayName: 'Terraform Plan'
+    workingDirectory: ${{parameters.terraformDirectory}}
+    env:
+      TF_IN_AUTOMATION: true
+      TF_VAR_subscription_id: "$(ARM_SUBSCRIPTION_ID)"
+      TF_VAR_client_id: "$(ARM_CLIENT_ID)"
+      TF_VAR_client_secret: "$(ARM_CLIENT_SECRET)"
+      TF_VAR_tenant_id: "$(ARM_TENANT_ID)"
+      TF_VAR_vm_username: "$(vm_username)"
+      TF_VAR_vm_password: "$(vm_password)"
+  - script: |
+      echo "Compressing ${{parameters.terraformDirectory}} directory..."
+      tar -czf ${{ parameters.terraformStateKey }}.tar.gz -C ${{parameters.terraformDirectory}} .
+    displayName: 'Compress ${{parameters.terraformDirectory}} Artifact'
+  - publish: ${{ parameters.terraformStateKey }}.tar.gz
+    artifact: 'tfplan'
+  - script: |
+     git config --global --remove-section url.https://azdo:$(System.AccessToken)@dev.azure.com/organization
+     git config --global --remove-section url.https://azdo:$(System.AccessToken)@organization
+    displayName: 'Remove git URL Redirect'
+    condition: failed()
