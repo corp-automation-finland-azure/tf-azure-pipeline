@@ -17,3 +17,9 @@ variable "environment" {
   description = "The stage of the development lifecycle for the workload that the resource supports"
   default     = ""
 }
+
+variable "deployment_resource_group_name" {
+  type        = string
+  description = "Azure RG where to create resources."
+  default     = "tf-rg3"
+}

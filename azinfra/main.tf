@@ -4,7 +4,7 @@ module "vnet-hub" {
   # By default, this module will create a resource group, proivde the name here
   # to use an existing resource group, specify the existing resource group name, 
   # and set the argument to `create_resource_group = false`. Location will be same as existing RG. 
-  resource_group_name = "tfdevopstest-rg"
+  resource_group_name = var.deployment_resource_group_name
   location            = "westeurope"
   hub_vnet_name       = "default-hub"
   
