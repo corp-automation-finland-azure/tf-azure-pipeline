@@ -16,7 +16,7 @@ parameters:
     - Production
 
 variables:
-- group: ${{parameters.Enviroment}}TFLandingZone
+- group: az-pipeline-terraform-variables
 - name: ENVIRONMENT
   value: ${{parameters.Enviroment}}
 - name: TERRAFORM_VERSION
