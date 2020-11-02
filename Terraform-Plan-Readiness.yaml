@@ -21,7 +21,7 @@ jobs:
     persistCredentials: true
   - task: AzureCLI@1
     displayName: Set Terraform backend
-    condition: and(succeeded(), eq('${{ parameters.provisionStorage }}', true))
+    # condition: and(succeeded(), eq('${{ parameters.provisionStorage }}', true))
     inputs:
       azureSubscription: ${{ parameters.terraformBackendServiceConnection }}
       scriptLocation: inlineScript
