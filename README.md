@@ -19,7 +19,7 @@ If you want to learn more about creating good readme files then refer the follow
 - [Visual Studio Code](https://github.com/Microsoft/vscode)
 - [Chakra Core](https://github.com/Microsoft/ChakraCore)
 
-#Github Setup with AzureDevops
+# Github Setup with AzureDevops
 - 1. Create Personal Access Token in Github Enterprise Server Account
 
 - 2. Go to Azure Devops and create new pipeline, choose github enterprise server (yaml)
@@ -34,8 +34,8 @@ If you want to learn more about creating good readme files then refer the follow
 
 - 7. Once done, click on secure files and provide your private ssh keys (private ssh keys are required to talk to github server assuming public keys are present there) - TOFIX
 - 8. To pass variable group to pipeline, add it to azure pipeline under variables head like
-variables:
-- group: az-pipeline-terraform-variables
+  variables: 
+    group: az-pipeline-terraform-variables
 
 - 9. Once done, create a service principal, go to project settings and choose service connection
   - 9.1. Give a name and choose Azure Resource Manager for service/connection type input
@@ -45,5 +45,5 @@ variables:
   - Hit Save, the service principal is now created
   - Use the same name in your azure pipeline when referred for service principal.
   
-Following these steps the github based azure pipeline is integrated with Azure devops/
-Add private ssh keys
+## Following these above steps the github based azure pipeline is integrated with Azure devops/
+
