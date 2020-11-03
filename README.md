@@ -34,9 +34,10 @@ If you want to learn more about creating good readme files then refer the follow
 
 - 7. Once done, click on secure files and provide your private ssh keys (private ssh keys are required to talk to github server assuming public keys are present there) - TOFIX
 - 8. To pass variable group to pipeline, add it to azure pipeline under variables head like
-  variables: 
-    group: az-pipeline-terraform-variables
-
+    ```
+   variables: 
+     group: az-pipeline-terraform-variables
+    ```
 - 9. Once done, create a service principal, go to project settings and choose service connection
   - 9.1. Give a name and choose Azure Resource Manager for service/connection type input
   - 9.2. Choose service principal (automatic)
