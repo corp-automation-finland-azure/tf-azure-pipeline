@@ -6,7 +6,7 @@ module "vnet-hub" {
   # and set the argument to `create_resource_group = false`. Location will be same as existing RG. 
   resource_group_name = var.deployment_resource_group_name
   location            = "westeurope"
-  hub_vnet_name       = "default-hub-terraform"
+  hub_vnet_name       = "default-hub-main"
   
 
   # Provide valid VNet Address space and specify valid domain name for Private DNS Zone.  
