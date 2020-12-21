@@ -1,9 +1,4 @@
 stages:
-- stage: Lint
-  displayName: 'Linting and Readiness Checks'
-  jobs:
-  - template: Terraform-Plan-Readiness.yaml
-
 - stage: Plan
   displayName: 'Terraform Plan'
   jobs:
