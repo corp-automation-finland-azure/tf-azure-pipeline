@@ -131,8 +131,3 @@ jobs:
       displayName: 'Compress ${{parameters.terraformDirectory}} Artifact'
     - publish: ${{ parameters.terraformStateKey }}.tar.gz
       artifact: 'tfplan'
-    - script: |
-        git config --global --remove-section url.https://azdo:$(System.AccessToken)@dev.azure.com/organization
-        git config --global --remove-section url.https://azdo:$(System.AccessToken)@organization
-        displayName: 'Remove git URL Redirect'
-        condition: failed()
