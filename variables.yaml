@@ -1,0 +1,17 @@
+variables:
+  admin.azureConnection: Terraform
+  admin.azureDevOpsOrganization: az-do
+  admin.azureDevOpsProject: az-pipeline-terraform
+  admin.bastionHostName: tf-test-bastion-dm2
+  admin.jumpHostNamePrefix: tf-test-jumphost-vm-dm2
+  admin.subscriptionId: e5f3913a-4b59-46d9-bd7d-8466273a0edd
+  settings.location: westeurope
+  settings.project: az-pipeline-terraform
+  settings.department: az-do
+  terraform.backendLocation: West Europe
+  terraform.path: azinfra
+  terraform.resourceGroup: tftestresourcegroupdm3
+  terraform.storageAccount: tfteststorageaccountdm3
+  terraform.storageAccountContainer: tftestsacontainerdm3
+  terraform.version: 0.13.5
+

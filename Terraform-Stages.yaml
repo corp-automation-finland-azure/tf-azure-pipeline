@@ -4,10 +4,10 @@ stages:
   jobs:
   - template: Terraform-Plan.yaml
 
-# - stage: Publish
-#   displayName: 'Publish Plan to Wiki'
-#   jobs:
-#   - template: Terraform-Publish-Plan-To-Wiki.yaml
+- stage: Publish
+  displayName: 'Publish Plan to Wiki'
+  jobs:
+  - template: Terraform-Publish-Plan-To-Wiki.yaml
 
 # - stage: Apply
 #   displayName: 'Terraform Apply'

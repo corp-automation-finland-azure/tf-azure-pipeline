@@ -14,10 +14,6 @@ parameters:
 jobs:
 - job: Publish
   displayName: 'Publish to Wiki'
-#   pool:
-#     vmImage: 'ubuntu-latest'
-#   workspace:
-#     clean: all
   steps:
   - checkout: self
     persistCredentials: true
