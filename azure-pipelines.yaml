@@ -16,7 +16,7 @@ parameters:
     - Production
 
 variables:
-- template: variables.yml
+- template: variables.yaml
 - name: ENVIRONMENT
   value: ${{parameters.Enviroment}}
 - name: TERRAFORM_VERSION
