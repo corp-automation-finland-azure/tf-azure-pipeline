@@ -28,7 +28,7 @@ jobs:
       # condition: and(succeeded(), eq('${{ parameters.provisionStorage }}', true))
       inputs:
         azureSubscription: ${{ parameters.terraformBackendServiceConnection }}
-        scriptType: 'bash'
+        scriptType: bash
         scriptLocation: inlineScript
         inlineScript: |
           set -eu  # fail on error
