@@ -92,7 +92,9 @@ jobs:
     - script: |
         set -eux  # fail on error
         eval `ssh-agent -s`
-        ssh-add /home/vsts/work/_temp/${{parameters.gitKey}}
+        #/home/vsts/work/_temp/${{parameters.gitKey}} is for Microsoft hosted agents
+        #/home/azureuser/azdo_agent/_work/_temp/${{parameters.gitKey}} is for self hosted agents
+        ssh-add /home/azureuser/azdo_agent/_work/_temp/${{parameters.gitKey}}
         git clone git@git.evry.cloud:az-do/tf-es-demo.git
         terraform init \
           -backend-config=storage_account_name=${{ parameters.terraformBackendStorageAccount }} \
