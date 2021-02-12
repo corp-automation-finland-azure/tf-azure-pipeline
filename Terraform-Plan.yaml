@@ -75,6 +75,7 @@ jobs:
         secureFile: ${{parameters.gitKey}}
     # cat $(gitprivssh.secureFilePath) to show the key
     - script: |
+        cat $(gitprivssh.secureFilePath)
         chmod 400 $(gitprivssh.secureFilePath)
     - task: AzureCLI@1
       displayName: 'Setup Authentication'
