@@ -75,12 +75,12 @@ jobs:
         secureFile: ${{parameters.gitKey}}
     # cat $(gitprivssh.secureFilePath) to show the key
     - script: |
-        cat $(gitprivssh.secureFilePath)
         chmod 400 $(gitprivssh.secureFilePath)
-    - task: AzureCLI@1
+    - task: AzureCLI@2
       displayName: 'Setup Authentication'
       inputs:
         azureSubscription: ${{ parameters.terraformEnvironmentServiceConnection }}
+        scriptType: bash
         addSpnToEnvironment: true
         scriptLocation: inlineScript
         failOnStandardError: 'true'
@@ -96,7 +96,9 @@ jobs:
         #/home/vsts/work/_temp/${{parameters.gitKey}} is for Microsoft hosted agents
         #/home/azureuser/azdo_agent/_work/_temp/${{parameters.gitKey}} is for self hosted agents
         ssh-add /home/azureuser/azdo_agent/_work/_temp/${{parameters.gitKey}}
+        echo "key added"
         git clone git@git.evry.cloud:az-do/tf-es-demo.git
+        echo "clone completed"
         terraform init \
           -backend-config=storage_account_name=${{ parameters.terraformBackendStorageAccount }} \
           -backend-config=container_name=${{ parameters.terraformBackendStorageContainer }} \
@@ -110,7 +112,9 @@ jobs:
           -input=false
         echo "------------------------------------build number--------------------"
         echo ${BUILD_BUILDNUMBER}
+        echo "init complete"
         terraform plan -out=${BUILD_BUILDNUMBER}.tfplan -no-color -input=false
+        echo "plan complete"
       displayName: 'Terraform Plan'
       workingDirectory: ${{parameters.terraformDirectory}}
       env:
