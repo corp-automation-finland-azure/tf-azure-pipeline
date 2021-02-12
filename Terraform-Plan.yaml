@@ -23,8 +23,6 @@ jobs:
     - checkout: self
       clean: true
       persistCredentials: true
-    - script: az --version
-      displayName: ‘Show Azure CLI version’
     - task: AzureCLI@1
       displayName: Set Terraform backend
       # condition: and(succeeded(), eq('${{ parameters.provisionStorage }}', true))
