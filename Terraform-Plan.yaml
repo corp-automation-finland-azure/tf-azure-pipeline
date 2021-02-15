@@ -94,9 +94,9 @@ jobs:
         #/home/vsts/work/_temp/${{parameters.gitKey}} is for Microsoft hosted agents
         #/home/azureuser/azdo_agent/_work/_temp/${{parameters.gitKey}} is for self hosted agents
         ssh-add /home/azureuser/azdo_agent/_work/_temp/${{parameters.gitKey}}
-        echo "key added"
+        echo "##vso[task.logissue type=warning]Git key added"
         git clone git@git.evry.cloud:az-do/tf-es-demo.git
-        echo "clone completed"
+        echo "##vso[task.logissue type=warning]Git clone completed"
         terraform init \
           -backend-config=storage_account_name=${{ parameters.terraformBackendStorageAccount }} \
           -backend-config=container_name=${{ parameters.terraformBackendStorageContainer }} \
@@ -112,7 +112,7 @@ jobs:
         echo ${BUILD_BUILDNUMBER}
         echo "init complete"
         terraform plan -out=${BUILD_BUILDNUMBER}.tfplan -no-color -input=false
-        echo "plan complete"
+        echo "##vso[task.logissue type=warning]Terraform plan completed"
       displayName: 'Terraform Plan'
       workingDirectory: ${{parameters.terraformDirectory}}
       env:
