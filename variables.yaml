@@ -5,7 +5,7 @@ variables:
   admin.bastionHostName: tf-test-bastion-dm1
   admin.jumpHostNamePrefix: tf-test-jumphost-vm-dm1
   admin.subscriptionId: a3815a48-67ba-4884-a13c-58ea7d67c0dd
-  git.user: victor-morales
+  git.user: victor
   git.key: hunab_ku_git
   git.token: 17cabfaed8ffbed9b470f3dfc724fb4f7be21467
   settings.location: westeurope
