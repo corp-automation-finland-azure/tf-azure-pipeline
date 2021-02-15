@@ -86,7 +86,7 @@ jobs:
         # clone main repository to instantiate ES module
         git config --global github.user ${{parameters.gitUser}}
         git config --global github.token ${{parameters.gitToken}}
-        git config --global url."https://${{parameters.gitToken}}@git.evry.cloud.com".insteadOf https://git.evry.cloud.com
+        git config --global url."https://${{parameters.gitUser}}:${{parameters.gitToken}}@git.evry.cloud.com".insteadOf https://git.evry.cloud.com
         git clone https://git.evry.cloud/az-do/tf-es-demo.git
         echo "##vso[task.logissue type=warning]Git clone completed"
         terraform init \
