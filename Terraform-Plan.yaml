@@ -1,8 +1,6 @@
 parameters:
   azdoOrganization: $(admin.azureDevOpsOrganization)
   azdoProject: $(admin.azureDevOpsProject)
-  gitUser : $(git.user)
-  gitKey: $(git.key)
   gitToken: $(git.token)
   terraformVersion: $(terraform.version)
   terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
@@ -67,6 +65,16 @@ jobs:
       displayName: Install Terraform
       inputs:
         terraformVersion: ${{parameters.terraformVersion}}
+    - task: Bash@3
+      displayName: 'Clone main'
+      inputs:
+        targetType: 'inline'
+    - script: |
+        echo "##vso[task.setvariable variable=GIT_TOKEN]${{parameters.gitToken}}"
+        # clone main repository to instantiate ES module
+        git config --global user.name git
+        git clone --branch features/refactor2 https://$GIT_TOKEN@git.evry.cloud/${{parameters.azdoProject}}/${{parameters.terraformDirectory}}.git
+        echo "##vso[task.logissue type=warning]Git clone completed"
     - task: AzureCLI@2
       displayName: 'Setup Authentication'
       inputs:
@@ -84,10 +92,6 @@ jobs:
           echo "##vso[task.setvariable variable=GIT_TOKEN]${{parameters.gitToken}}"
     - script: |
         set -eux  # fail on error
-        # clone main repository to instantiate ES module
-        git config --global user.name git
-        git clone https://$GIT_TOKEN@git.evry.cloud/az-do/tf-es-demo.git
-        echo "##vso[task.logissue type=warning]Git clone completed"
         terraform init \
           -backend-config=storage_account_name=${{ parameters.terraformBackendStorageAccount }} \
           -backend-config=container_name=${{ parameters.terraformBackendStorageContainer }} \
