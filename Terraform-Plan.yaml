@@ -66,19 +66,6 @@ jobs:
       displayName: Install Terraform
       inputs:
         terraformVersion: ${{parameters.terraformVersion}}
-    - task: DownloadSecureFile@1
-      name: gitprivssh
-      displayName: 'Download private key for git access'
-      inputs:
-        secureFile: ${{parameters.gitKey}}
-    # cat $(gitprivssh.secureFilePath) to show the key
-    - script: |
-        chmod 400 $(gitprivssh.secureFilePath)
-        eval `ssh-agent -s`
-        #/home/vsts/work/_temp/${{parameters.gitKey}} is for Microsoft hosted agents
-        #/home/azureuser/azdo_agent/_work/_temp/${{parameters.gitKey}} is for self hosted agents
-        ssh-add /home/azureuser/azdo_agent/_work/_temp/${{parameters.gitKey}}
-        echo "##vso[task.logissue type=warning]Git key added"
     - task: AzureCLI@2
       displayName: 'Setup Authentication'
       inputs:
@@ -96,7 +83,9 @@ jobs:
     - script: |
         set -eux  # fail on error
         # clone main repository to instantiate ES module
-        git clone git@git.evry.cloud:az-do/tf-es-demo.git
+        git config --global github.user victor-morales
+        git config --global github.token ${{parameters.gitKey}}
+        git clone https://victor-morales:${{parameters.gitKey}}@git.evry.cloud/az-do/tf-es-demo.git
         echo "##vso[task.logissue type=warning]Git clone completed"
         terraform init \
           -backend-config=storage_account_name=${{ parameters.terraformBackendStorageAccount }} \

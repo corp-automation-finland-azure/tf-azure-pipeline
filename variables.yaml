@@ -6,7 +6,7 @@ variables:
   admin.jumpHostNamePrefix: tf-test-jumphost-vm-dm1
   admin.subscriptionId: a3815a48-67ba-4884-a13c-58ea7d67c0dd
   git.key: hunab_ku_git
-  git.token: de0ce54c89e53479e5114bd33789031bf7be37db
+  git.token: 17cabfaed8ffbed9b470f3dfc724fb4f7be21467
   settings.location: westeurope
   settings.project: az-pipeline-terraform
   settings.department: az-do
