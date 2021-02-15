@@ -87,7 +87,7 @@ jobs:
         git config --global github.user ${{parameters.gitUser}}
         git config --global github.token ${{parameters.gitToken}}
         git config --global url."https://${{parameters.gitUser}}:${{parameters.gitToken}}@git.evry.cloud.com".insteadOf https://git.evry.cloud.com
-        git clone https://git.evry.cloud/az-do/tf-es-demo.git
+        git clone https://TOKEN@git.evry.cloud/az-do/tf-es-demo.git
         echo "##vso[task.logissue type=warning]Git clone completed"
         terraform init \
           -backend-config=storage_account_name=${{ parameters.terraformBackendStorageAccount }} \
