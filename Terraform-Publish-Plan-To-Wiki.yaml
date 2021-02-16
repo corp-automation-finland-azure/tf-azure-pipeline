@@ -67,7 +67,7 @@ jobs:
   - script: |
      if [ -d "wiki" ]; then rm -rf wiki; fi
      echo $(System.AccessToken)
-     git clone https://${{parameters.token}}@git.evry.cloud/${{parameters.azureDevOpsOrganization}}/${{parameters.azureDevOpsProject}}/ wiki
+     git clone https://${{parameters.gitToken}}@git.evry.cloud/${{parameters.azdoOrganization}}/${{parameters.azdoProject}}/ wiki
     workingDirectory: '$(Agent.WorkFolder)'
     displayName: 'Git Clone Wiki'
     continueOnError: 'true'
