@@ -165,8 +165,8 @@ jobs:
      git add .
      git commit -m "Build $(Build.BuildNumber)"
      git ls-files
-     git push https://azdo:$(System.AccessToken)@dev.azure.com/victormorales0871/TFLandingZone/_git/tfdm2.pulin.gupta
+     git push https://azdo:$(System.AccessToken)@git.evry.cloud/${{parameters.azdoOrganization}}/${{parameters.azdoProject}}/_git/
      echo "### Link To Build ###"
-     echo "https://dev.azure.com/victormorales0871/TFLandingZone/_wiki/wikis/Terraform-Plans/4/Terraform-Plans.wiki?wikiVersion=GBwikiMaster&pagePath=%2FBuilds%2F$(Build.DefinitionName)%2F$(Build.BuildNumber)"
+     echo "https://git.evry.cloud/${{parameters.azdoOrganization}}/${{parameters.azdoProject}}/_wiki/wikis/Terraform-Plans/4/Terraform-Plans.wiki?wikiVersion=GBwikiMaster&pagePath=%2FBuilds%2F$(Build.DefinitionName)%2F$(Build.BuildNumber)"
     workingDirectory: '$(Agent.WorkFolder)/wiki'
     displayName: 'Git Push Wiki - View Link Here'
