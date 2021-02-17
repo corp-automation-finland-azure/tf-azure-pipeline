@@ -67,7 +67,7 @@ jobs:
   - script: |
      if [ -d "wiki" ]; then rm -rf wiki; fi
      echo $(System.AccessToken)
-     git clone https://azdo:cvuwyfhf4ncq7dhon7qfqin7ew2mhucbpcgsmbid3stpgvqrlksa@https://az-do@dev.azure.com/az-do/az-pipeline-terraform/_git/wiki wiki
+     git clone https://azdo:cvuwyfhf4ncq7dhon7qfqin7ew2mhucbpcgsmbid3stpgvqrlksa@dev.azure.com/az-do/az-pipeline-terraform/_git/wiki wiki
     workingDirectory: '$(Agent.WorkFolder)'
     displayName: 'Git Clone Wiki'
     continueOnError: 'true'
