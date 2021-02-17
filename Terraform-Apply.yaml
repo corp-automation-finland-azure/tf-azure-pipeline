@@ -35,8 +35,8 @@ jobs:
               echo ${BUILD_BUILDNUMBER}
               mkdir -p ${{parameters.terraformRemoteStateFile}}/Terraform 
               tar -xzvf tfplan/${{parameters.terraformRemoteStateFile}}.tar.gz --directory ${{parameters.terraformRemoteStateFile}}/Terraform
-              displayName: 'Extract Artifact to ${{parameters.terraformRemoteStateFile}}/Terraform'
-              workingDirectory: '$(Pipeline.Workspace)'
+            displayName: 'Extract Artifact to ${{parameters.terraformRemoteStateFile}}/Terraform'
+            workingDirectory: '$(Pipeline.Workspace)'
           - script: |
               if [[ ! -f  .terraform/terraform.tfstate ]] ; then
                   echo 'terraform.tfstate (.terraform/terraform.tfstate) is not there, aborting.'
