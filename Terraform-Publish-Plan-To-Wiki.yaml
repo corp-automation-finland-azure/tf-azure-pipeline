@@ -168,6 +168,6 @@ jobs:
      git ls-files
      git push https://azdo:cvuwyfhf4ncq7dhon7qfqin7ew2mhucbpcgsmbid3stpgvqrlksa@dev.azure.com/az-do/az-pipeline-terraform/_git/wiki/
      echo "### Link To Build ###"
-     echo "https://dev.azure.com/az-do/az-pipeline-terraform/wiki/_wiki/wikis/${{ parameters.wikiDirectory }}/4/Terraform-Plans.wiki?wikiVersion=GBwikiMaster&pagePath=%2FBuilds%2F$(Build.DefinitionName)%2F$(Build.BuildNumber)"
+     echo "https://dev.azure.com/az-do/az-pipeline-terraform/wiki/_wiki/wikis/${{ parameters.wikiDirectory }}/9/?pagePath=%2FBuilds%2F$(Build.DefinitionName)%2F$(Build.BuildNumber)"
     workingDirectory: '$(Agent.WorkFolder)/wiki'
     displayName: 'Git Push Wiki - View Link Here'
