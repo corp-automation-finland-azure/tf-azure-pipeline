@@ -70,7 +70,7 @@ jobs:
     - script: |
         echo "##vso[task.setvariable variable=GIT_TOKEN]${{parameters.gitToken}}"
         # clone main repository to instantiate ES module
-        git config --global user.name git
+        git config --global user.name azdo
         git clone https://$GIT_TOKEN@git.evry.cloud/${{parameters.azdoOrganization}}/${{parameters.terraformDirectory}}.git
         echo "##vso[task.logissue type=warning]Git clone completed"
       displayName: 'Clone es main'
