@@ -6,6 +6,7 @@ parameters:
   terraformVersion: $(terraform.version)
   terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
   terraformDirectory: $(terraform.path)
+  wikiDirectory: $(settings.wikidirectory)
   terraformBackendServiceConnection: $(admin.azureConnection)
   terraformEnvironmentServiceConnection: $(admin.azureConnection)
   terraformBackendResourceGroup: $(terraform.resourceGroup)
@@ -96,7 +97,7 @@ jobs:
      template="wiki/Builds/Template.md"
      file_name="wiki/Builds/${build_name}/$(Build.BuildNumber).md"
      tfout="$(Pipeline.Workspace)/${{ parameters.terraformDirectory }}/tfplan.out"
-     mkdir -p "wiki/Builds/${build_name}"
+     mkdir -p "wiki/${{ parameters.wikiDirectory }}/Builds/${build_name}"
 
      cat ${template} > ${file_name}
      cat <<EOT >> ${file_name}
@@ -142,7 +143,7 @@ jobs:
     displayName: 'Write Terraform Show to Wiki'
 
   - script: |
-     # WORKING DIRECTORY IS $(Agent.WorkFolder)/wiki/Builds
+     # WORKING DIRECTORY IS $(Agent.WorkFolder)/wiki/${{ parameters.wikiDirectory }}
      bn=$(Build.DefinitionName)
      build_name=${bn// /_}
 
@@ -157,7 +158,7 @@ jobs:
      #   GET ALL BUT THE LATEST 10 FILES |
      #   MOVE THEM TO THE Archives FOLDER
      find * -maxdepth 0 -type f | sort -nr | awk 'NR > 10' | xargs -i mv {} ./Archives/
-    workingDirectory: '$(Agent.WorkFolder)/wiki/Builds'
+    workingDirectory: '$(Agent.WorkFolder)/wiki/${{ parameters.wikiDirectory }}'
     displayName: 'Archive Old Builds'
 
   - script: |
@@ -167,6 +168,6 @@ jobs:
      git ls-files
      git push https://azdo:cvuwyfhf4ncq7dhon7qfqin7ew2mhucbpcgsmbid3stpgvqrlksa@dev.azure.com/az-do/az-pipeline-terraform/_git/wiki/
      echo "### Link To Build ###"
-     echo "https://dev.azure.com/az-do/az-pipeline-terraform/wiki/_wiki/wikis/Terraform-Plans/4/Terraform-Plans.wiki?wikiVersion=GBwikiMaster&pagePath=%2FBuilds%2F$(Build.DefinitionName)%2F$(Build.BuildNumber)"
+     echo "https://dev.azure.com/az-do/az-pipeline-terraform/wiki/_wiki/wikis/${{ parameters.wikiDirectory }}/4/Terraform-Plans.wiki?wikiVersion=GBwikiMaster&pagePath=%2FBuilds%2F$(Build.DefinitionName)%2F$(Build.BuildNumber)"
     workingDirectory: '$(Agent.WorkFolder)/wiki'
     displayName: 'Git Push Wiki - View Link Here'

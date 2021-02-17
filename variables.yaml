@@ -15,4 +15,5 @@ variables:
   terraform.storageAccount: tfdmteststorageaccount1
   terraform.storageAccountContainer: tfdmsacontainer1
   terraform.version: 0.14.6
+  settings.wikidirectory: tf-es-demo-release
 
