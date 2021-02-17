@@ -94,8 +94,8 @@ jobs:
   - script: |
      bn=$(Build.DefinitionName)
      build_name=${bn// /_}
-     template="wiki/Builds/Template.md"
-     file_name="wiki/Builds/${build_name}/$(Build.BuildNumber).md"
+     template="wiki/${{ parameters.wikiDirectory }}/Builds/Template.md"
+     file_name="wiki/${{ parameters.wikiDirectory }}/Builds/${build_name}/$(Build.BuildNumber).md"
      tfout="$(Pipeline.Workspace)/${{ parameters.terraformDirectory }}/tfplan.out"
      mkdir -p "wiki/${{ parameters.wikiDirectory }}/Builds/${build_name}"
 
