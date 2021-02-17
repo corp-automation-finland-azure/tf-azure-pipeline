@@ -12,4 +12,4 @@ stages:
 - stage: Apply
   displayName: 'Terraform Apply'
   jobs:
-   - template: Terraform-Apply.yaml
+  - template: Terraform-Apply.yaml
