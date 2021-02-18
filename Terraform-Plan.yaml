@@ -16,7 +16,6 @@ jobs:
 - job: Plan
   displayName: 'Terraform Plan'
   pool: 'az-pipeline-terraform-agent-pool'
-  environment: 'Test'
   steps:
     - checkout: self
       clean: true

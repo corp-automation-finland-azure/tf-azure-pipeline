@@ -6,6 +6,7 @@ stages:
 
 - stage: Publish
   displayName: 'Publish Plan to Wiki'
+  environment: 'Test'
   jobs:
   - template: Terraform-Publish-Plan-To-Wiki.yaml
 
