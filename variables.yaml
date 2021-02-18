@@ -1,0 +1,19 @@
+variables:
+  admin.azureConnection: tf-es-demo-service-connection
+  admin.azureDevOpsOrganization: az-do
+  admin.azureDevOpsProject: az-pipeline-terraform
+  admin.bastionHostName: tf-test-bastion-dm1
+  admin.jumpHostNamePrefix: tf-test-jumphost-vm-dm1
+  admin.subscriptionId: a3815a48-67ba-4884-a13c-58ea7d67c0dd
+  git.token: 17cabfaed8ffbed9b470f3dfc724fb4f7be21467
+  settings.location: westeurope
+  settings.project: az-pipeline-terraform
+  settings.department: az-do
+  terraform.backendLocation: West Europe
+  terraform.path: tf-es-demo
+  terraform.resourceGroup: tfdmresourcegroup1
+  terraform.storageAccount: tfdmteststorageaccount1
+  terraform.storageAccountContainer: tfdmsacontainer1
+  terraform.version: 0.14.6
+  settings.wikidirectory: tf-es-demo-release
+

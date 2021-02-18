@@ -16,11 +16,11 @@ parameters:
     - Production
 
 variables:
-- group: az-pipeline-terraform-variables
+- template: variables.yaml
 - name: ENVIRONMENT
   value: ${{parameters.Enviroment}}
 - name: TERRAFORM_VERSION
-  value: 0.13.5
+  value: 0.14.6
 
 stages:
 - template: Terraform-Stages.yaml

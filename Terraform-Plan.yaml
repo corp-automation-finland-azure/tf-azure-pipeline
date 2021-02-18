@@ -1,21 +1,124 @@
+parameters:
+  azdoOrganization: $(admin.azureDevOpsOrganization)
+  azdoProject: $(admin.azureDevOpsProject)
+  gitToken: $(git.token)
+  terraformVersion: $(terraform.version)
+  terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
+  terraformDirectory: $(terraform.path)
+  terraformBackendServiceConnection: $(admin.azureConnection)
+  terraformEnvironmentServiceConnection: $(admin.azureConnection)
+  terraformBackendResourceGroup: $(terraform.resourceGroup)
+  terraformBackendStorageAccount: $(terraform.storageAccount)
+  terraformBackendStorageContainer: $(terraform.storageAccountContainer)
+  terraformBackendLocation: $(terraform.backendLocation)
+  
 jobs:
 - job: Plan
   displayName: 'Terraform Plan'
-  pool:
-    vmImage: 'ubuntu-latest'
-  workspace:
-    clean: all
+  pool: 'az-pipeline-terraform-agent-pool'
   steps:
-  - template: Terraform-Plan-Steps.yaml
-    parameters:
-      azdoOrganization: $(admin.azureDevOpsOrganization)
-      azdoProject: $(admin.azureDevOpsProject)
-      terraformVersion: $(TERRAFORM_VERSION)
-      terraformStateKey: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
-      terraformDirectory: $(terraform.path)
-      terraformBackendServiceConnection: Terraform
-      terraformEnvironmentServiceConnection: Terraform
-      terraformBackendResourceGroup: $(terraform.resourceGroup)
-      terraformBackendStorageAccount: $(terraform.storageAccount)
-      terraformBackendStorageContainer: $(terraform.storageAccountContainer)
-      terraformBackendLocation: $(terraform.backendLocation)
+    - checkout: self
+      clean: true
+      persistCredentials: true
+    - task: AzureCLI@2
+      displayName: Set Terraform backend
+      # condition: and(succeeded(), eq('${{ parameters.provisionStorage }}', true))
+      inputs:
+        azureSubscription: ${{ parameters.terraformBackendServiceConnection }}
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          set -eu  # fail on error
+          RG='${{ parameters.terraformBackendResourceGroup }}'
+          export AZURE_STORAGE_ACCOUNT='${{ parameters.terraformBackendStorageAccount }}'
+          export AZURE_STORAGE_KEY="$(az storage account keys list -g "$RG" -n "$AZURE_STORAGE_ACCOUNT" --query '[0].value' -o tsv)"
+          if test -z "$AZURE_STORAGE_KEY"; then
+            az configure --defaults group="$RG" location='${{ parameters.terraformBackendLocation }}'
+            az group create -n "$RG" -o none
+            az storage account create -n "$AZURE_STORAGE_ACCOUNT" -o none
+            az storage account blob-service-properties update --enable-delete-retention true --delete-retention-days 100 -n "$AZURE_STORAGE_ACCOUNT" -o none
+            az storage account blob-service-properties update --enable-versioning -n "$AZURE_STORAGE_ACCOUNT" -o none
+            export AZURE_STORAGE_KEY="$(az storage account keys list -g "$RG" -n "$AZURE_STORAGE_ACCOUNT" --query '[0].value' -o tsv)"
+          fi
+          container='${{ parameters.terraformBackendStorageContainer }}'
+          if ! az storage container show -n "$container" -o none 2>/dev/null; then
+            az storage container create -n "$container" -o none
+          fi
+          blob='${{ parameters.terraformRemoteStateFile }}'
+          if [[ $(az storage blob exists -c "$container" -n "$blob" --query exists) = "true" ]]; then
+            if [[ $(az storage blob show -c "$container" -n "$blob" --query "properties.lease.status=='locked'") = "true" ]]; then
+              echo "State is leased"
+              lock_jwt=$(az storage blob show -c "$container" -n "$blob" --query metadata.terraformlockid -o tsv)
+              if [ "$lock_jwt" != "" ]; then
+                lock_json=$(base64 -d <<< "$lock_jwt")
+                echo "State is locked"
+                jq . <<< "$lock_json"
+              fi
+              if [ "${TERRAFORM_BREAK_LEASE:-}" != "" ]; then
+                az storage blob lease break -c "$container" -b "$blob"
+              else
+                echo "If you're really sure you want to break the lease, rerun the pipeline with variable TERRAFORM_BREAK_LEASE set to 1."
+                exit 1
+              fi
+            fi
+          fi
+        addSpnToEnvironment: true
+    - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+      displayName: Install Terraform
+      inputs:
+        terraformVersion: ${{parameters.terraformVersion}}
+    - script: |
+        echo "##vso[task.setvariable variable=GIT_TOKEN]${{parameters.gitToken}}"
+        # clone main repository to instantiate ES module
+        git config --global user.name azdo
+        git clone https://$GIT_TOKEN@git.evry.cloud/${{parameters.azdoOrganization}}/${{parameters.terraformDirectory}}.git
+        echo "##vso[task.logissue type=warning]Git clone completed"
+      displayName: 'Clone es main'
+    - task: AzureCLI@2
+      displayName: 'Setup Authentication'
+      inputs:
+        azureSubscription: ${{ parameters.terraformEnvironmentServiceConnection }}
+        scriptType: bash
+        addSpnToEnvironment: true
+        scriptLocation: inlineScript
+        failOnStandardError: 'true'
+        inlineScript: |   
+          echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(az account show --query="id" -o tsv)"
+          echo "##vso[task.setvariable variable=ARM_CLIENT_ID]${servicePrincipalId}"
+          echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET]${servicePrincipalKey}"
+          echo "##vso[task.setvariable variable=ARM_TENANT_ID]$(az account show --query="tenantId" -o tsv)"
+          echo "##vso[task.setvariable variable=ARM_ACCESS_KEY]$(az storage account keys list -n ${{parameters.terraformBackendStorageAccount}} --query="[0].value" -o tsv)"
+          echo "##vso[task.setvariable variable=GIT_TOKEN]${{parameters.gitToken}}"
+    - script: |
+        set -eux  # fail on error
+        terraform init \
+          -backend-config=storage_account_name=${{ parameters.terraformBackendStorageAccount }} \
+          -backend-config=container_name=${{ parameters.terraformBackendStorageContainer }} \
+          -backend-config=key=${{ parameters.terraformRemoteStateFile }} \
+          -backend-config=resource_group_name=${{ parameters.terraformBackendResourceGroup }} \
+          -backend-config=subscription_id=$ARM_SUBSCRIPTION_ID \
+          -backend-config=tenant_id=$ARM_TENANT_ID \
+          -backend-config=client_id=$ARM_CLIENT_ID \
+          -backend-config=client_secret="$ARM_CLIENT_SECRET" \
+          -no-color \
+          -input=false
+        echo "------------------------------------build number--------------------"
+        echo ${BUILD_BUILDNUMBER}
+        echo "init complete"
+        terraform plan -out=${BUILD_BUILDNUMBER}.tfplan -no-color -input=false
+        echo "##vso[task.logissue type=warning]Terraform plan completed"
+      displayName: 'Terraform Plan'
+      workingDirectory: ${{parameters.terraformDirectory}}
+      env:
+        TF_IN_AUTOMATION: true
+        TF_VAR_subscription_id: "$(ARM_SUBSCRIPTION_ID)"
+        TF_VAR_client_id: "$(ARM_CLIENT_ID)"
+        TF_VAR_client_secret: "$(ARM_CLIENT_SECRET)"
+        TF_VAR_tenant_id: "$(ARM_TENANT_ID)"
+        TF_VAR_example_variable: "$(example_variable)"
+    - script: |
+        echo "Compressing ${{parameters.terraformDirectory}} directory..."
+        tar -czf ${{ parameters.terraformRemoteStateFile }}.tar.gz -C ${{parameters.terraformDirectory}} .
+      displayName: 'Compress ${{parameters.terraformDirectory}} Artifact'
+    - publish: ${{ parameters.terraformRemoteStateFile }}.tar.gz
+      artifact: 'tfplan'
