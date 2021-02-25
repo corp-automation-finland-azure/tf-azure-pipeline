@@ -1,16 +1,5 @@
 parameters:
-  azdoOrganization: $(admin.azureDevOpsOrganization)
-  azdoProject: $(admin.azureDevOpsProject)
-  gitToken: $(git.token)
-  terraformVersion: $(terraform.version)
   terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
-  terraformDirectory: $(terraform.path)
-  terraformBackendServiceConnection: $(admin.azureConnection)
-  terraformEnvironmentServiceConnection: $(admin.azureConnection)
-  terraformBackendResourceGroup: $(terraform.resourceGroup)
-  terraformBackendStorageAccount: $(terraform.storageAccount)
-  terraformBackendStorageContainer: $(terraform.storageAccountContainer)
-  terraformBackendLocation: $(terraform.backendLocation)
 
 jobs:
 - deployment: Apply
@@ -27,12 +16,11 @@ jobs:
           - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
             displayName: Install Terraform
             inputs:
-              terraformVersion: ${{parameters.terraformVersion}}
+              terraformVersion: $(terraform.version)
           - download: current
             artifact: 'tfplan'
           - script: |
               echo "------------${BUILD_BUILDNUMBER}--------------"
-              echo ${BUILD_BUILDNUMBER}
               mkdir -p ${{parameters.terraformRemoteStateFile}}/Terraform 
               tar -xzvf tfplan/${{parameters.terraformRemoteStateFile}}.tar.gz --directory ${{parameters.terraformRemoteStateFile}}/Terraform
             displayName: 'Extract Artifact to ${{parameters.terraformRemoteStateFile}}/Terraform'
@@ -46,28 +34,26 @@ jobs:
               fi
             workingDirectory: '$(Pipeline.Workspace)/${{parameters.terraformRemoteStateFile}}/Terraform'
             displayName: 'Check for terraform.tfstate'
-          - task: AzureCLI@1
-            displayName: 'Setup Authentication'
+          - task: AzureCLI@2
+            displayName: "Setup Authentication"
             inputs:
-              azureSubscription: ${{ parameters.terraformEnvironmentServiceConnection }}
+              azureSubscription: $(admin.azureEnvironmentConnection)
+              scriptType: bash
               addSpnToEnvironment: true
-              scriptLocation: inlineScript
-              failOnStandardError: 'true'
-              inlineScript: |   
-                echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(az account show --query="id" -o tsv)"
-                echo "##vso[task.setvariable variable=ARM_CLIENT_ID]${servicePrincipalId}"
-                echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET]${servicePrincipalKey}"
-                echo "##vso[task.setvariable variable=ARM_TENANT_ID]$(az account show --query="tenantId" -o tsv)"
-                echo "##vso[task.setvariable variable=ARM_ACCESS_KEY]$(az storage account keys list -n ${{parameters.terraformBackendStorageAccount}} --query="[0].value" -o tsv)"
-                echo "##vso[task.setvariable variable=GIT_TOKEN]${{parameters.gitToken}}"
+              failOnStandardError: "true"
+              scriptPath: scripts/set-variables.sh
+            env:
+              terraformBackendStorageAccount: $(terraform.storageAccount)
+              gitToken: $(git.token)
+
           - script: |
               git config --global --list | grep url. | awk -F '.instead' '{print $1}' | while read line
               do
                 echo $line
               git config --global --remove-section $line
               done
-              git config --global url."https://azdo:$GIT_TOKEN@dev.azure.com/${{parameters.azdoOrganization}}".insteadOf https://dev.azure.com/${{parameters.azdoOrganization}}
-              git config --global url."https://azdo:$GIT_TOKEN@${{parameters.azdoOrganization}}".insteadOf https://${{parameters.azdoOrganization}}
+              git config --global url."https://azdo:$(git.token)@dev.azure.com/$(admin.azureDevOpsOrganization)".insteadOf https://dev.azure.com/$(admin.azureDevOpsOrganization)
+              git config --global url."https://azdo:$(git.token)@$(admin.azureDevOpsOrganization)".insteadOf https://$(admin.azureDevOpsOrganization)
               git init
             displayName: 'Redirect git URLs to use the Access Token So Modules Can Be Pulled In'
           - script: |
@@ -82,7 +68,7 @@ jobs:
               TF_VAR_tenant_id: "$(ARM_TENANT_ID)"
               TF_VAR_example_variable: "$(example_variable)"
           - script: |
-              git config --global --remove-section url.https://azdo:$GIT_TOKEN@dev.azure.com/${{parameters.azdoOrganization}}
-              git config --global --remove-section url.https://azdo:$GIT_TOKEN@${{parameters.azdoOrganization}}
+              git config --global --remove-section url.https://azdo:$(git.token)@dev.azure.com/$(admin.azureDevOpsOrganization)
+              git config --global --remove-section url.https://azdo:$(git.token)@$(admin.azureDevOpsOrganization)
             displayName: 'Remove git URL Redirect'
             condition: failed()

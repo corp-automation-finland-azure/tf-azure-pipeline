@@ -1,18 +1,5 @@
 parameters:
-  azdoOrganization: $(admin.azureDevOpsOrganization)
-  azdoProject: $(admin.azureDevOpsProject)
-  gitKey: $(git.key)
-  gitToken: $(git.token)
-  terraformVersion: $(terraform.version)
   terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
-  terraformDirectory: $(terraform.path)
-  wikiDirectory: $(settings.wikidirectory)
-  terraformBackendServiceConnection: $(admin.azureConnection)
-  terraformEnvironmentServiceConnection: $(admin.azureConnection)
-  terraformBackendResourceGroup: $(terraform.resourceGroup)
-  terraformBackendStorageAccount: $(terraform.storageAccount)
-  terraformBackendStorageContainer: $(terraform.storageAccountContainer)
-  terraformBackendLocation: $(terraform.backendLocation)
   
 jobs:
 - job: Publish
@@ -24,7 +11,7 @@ jobs:
   - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
     displayName: Install Terraform
     inputs:
-      terraformVersion: ${{parameters.terraformVersion}}
+      terraformVersion: $(terraform.version)
   - download: current
     artifact: 'tfplan'
   - script: |
@@ -41,133 +28,78 @@ jobs:
      fi
     workingDirectory: '$(Pipeline.Workspace)/${{parameters.terraformRemoteStateFile}}/Terraform'
     displayName: 'Check for terraform.tfstate'
-  - task: AzureCLI@1
-    displayName: 'Setup Authentication'
+
+  # need Azcli for setup authentication as it requires az login
+  - task: AzureCLI@2
+    displayName: "Setup Authentication"
     inputs:
-      azureSubscription: ${{ parameters.terraformBackendServiceConnection }}
+      azureSubscription: $(admin.azureEnvironmentConnection)
+      scriptType: bash
       addSpnToEnvironment: true
-      scriptLocation: inlineScript
-      failOnStandardError: 'true'
-      inlineScript: |   
-       echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(az account show --query="id" -o tsv)"
-       echo "##vso[task.setvariable variable=ARM_CLIENT_ID]${servicePrincipalId}"
-       echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET]${servicePrincipalKey}"
-       echo "##vso[task.setvariable variable=ARM_TENANT_ID]$(az account show --query="tenantId" -o tsv)"
-       echo "##vso[task.setvariable variable=ARM_ACCESS_KEY]$(az storage account keys list -n ${{parameters.terraformBackendStorageAccount}} --query="[0].value" -o tsv)"
+      failOnStandardError: "true"
+      scriptPath: scripts/set-variables.sh
+    env:
+      terraformBackendStorageAccount: $(terraform.storageAccount)
+      gitToken: $(git.token)
+
   - script: |
-     mkdir -p ${{ parameters.terraformDirectory }}
-     tar -xzvf tfplan/${{ parameters.terraformRemoteStateFile }}.tar.gz --directory ${{ parameters.terraformDirectory }}
+     mkdir -p $(terraform.path)
+     tar -xzvf tfplan/${{ parameters.terraformRemoteStateFile }}.tar.gz --directory $(terraform.path)
     workingDirectory: '$(Pipeline.Workspace)'
-
-  - script: |
-     git config --global user.email "azdo@organization.com"
-     git config --global user.name "azdo"
-     git config --list
-    displayName: 'Git Config'
-
-  - script: |
-     if [ -d "wiki" ]; then rm -rf wiki; fi
-     echo $(System.AccessToken)
-     git clone https://azdo:cvuwyfhf4ncq7dhon7qfqin7ew2mhucbpcgsmbid3stpgvqrlksa@dev.azure.com/az-do/az-pipeline-terraform/_git/wiki wiki
-    workingDirectory: '$(Agent.WorkFolder)'
-    displayName: 'Git Clone Wiki'
+  
+  - task: Bash@3
+    displayName: "Git Clone Wiki"
     continueOnError: 'true'
-  - script: |
-     set -eux  # fail on error
-     eval `ssh-agent -s`
-     terraform init \
-       -backend-config=storage_account_name=${{ parameters.terraformBackendStorageAccount }} \
-       -backend-config=container_name=${{ parameters.terraformBackendStorageContainer }} \
-       -backend-config=key=${{ parameters.terraformRemoteStateFile }} \
-       -backend-config=resource_group_name=${{ parameters.terraformBackendResourceGroup }} \
-       -backend-config=subscription_id=$ARM_SUBSCRIPTION_ID \
-       -backend-config=tenant_id=$ARM_TENANT_ID \
-       -backend-config=client_id=$ARM_CLIENT_ID \
-       -backend-config=client_secret="$ARM_CLIENT_SECRET" \
-       -no-color \
-       -input=false
-     terraform show -no-color ${BUILD_BUILDNUMBER}.tfplan
-     terraform show -no-color ${BUILD_BUILDNUMBER}.tfplan > tfplan.out
-    workingDirectory: '$(Pipeline.Workspace)/${{ parameters.terraformDirectory }}'
-    displayName: 'Terraform Show - Output'
+    inputs:
+      filePath: scripts/clone-repo.sh
+      workingDirectory: '$(Agent.WorkFolder)'
+    env:
+      gitToken: $(git.tokenAzureDevops)
+      targetGitOrganization: $(admin.azureDevOpsOrganization)
+      targetDir: $(admin.wikiProject)
+      targetProject: $(settings.project)
+      cloneUrl: $(settings.cloneSourceWiki)
 
-  - script: |
-     bn=$(Build.DefinitionName)
-     build_name=${bn// /_}
-     template="wiki/${{ parameters.wikiDirectory }}/Builds/Template.md"
-     file_name="wiki/${{ parameters.wikiDirectory }}/Builds/${build_name}/$(Build.BuildNumber).md"
-     tfout="$(Pipeline.Workspace)/${{ parameters.terraformDirectory }}/tfplan.out"
-     mkdir -p "wiki/${{ parameters.wikiDirectory }}/Builds/${build_name}"
+  - task: Bash@3
+    displayName: "'Terraform Show - Output'"
+    inputs:
+      filePath: scripts/terraform-init.sh
+      workingDirectory: '$(Pipeline.Workspace)/$(terraform.path)'
+    env:
+      terraformBackendStorageAccount: $(terraform.storageAccount)
+      terraformBackendStorageContainer: $(terraform.storageAccountContainer)
+      terraformRemoteStateFile: ${{ parameters.terraformRemoteStateFile }}
+      terraformBackendResourceGroup: $(terraform.resourceGroup)
+      ARM_SUBSCRIPTION_ID: $ARM_SUBSCRIPTION_ID
+      ARM_TENANT_ID: $ARM_TENANT_ID
+      ARM_CLIENT_ID: $ARM_CLIENT_ID
+      ARM_CLIENT_SECRET: $ARM_CLIENT_SECRET
+      terraformShowFlag: "True"
+  - task: Bash@3
+    displayName: "Write Terraform Show to Wiki"
+    inputs:
+      failOnStandardError: "true"
+      workingDirectory: $(Agent.WorkFolder)
+      filePath: scripts/terraform-write-to-wiki.sh
+    env:
+      terraformDirectory: $(terraform.path)
+      wikiDirectory: $(settings.wikireleasedirectory)
+  - task: Bash@3
+    displayName: "Archive Old Builds"
+    inputs:
+      workingDirectory: $(Agent.WorkFolder)/wiki/$(settings.wikireleasedirectory)
+      filePath: scripts/archive-old-builds.sh
+    env:
+      wikiDirectory: $(settings.wikireleasedirectory)
 
-     cat ${template} > ${file_name}
-     cat <<EOT >> ${file_name}
-
-     ## Build Details
-     <table>
-     <tr>
-        <td><b>Build Reason</b></td>
-        <td>$(Build.Reason)</td>
-     </tr>
-     <tr>
-        <td><b>Requestor</b></td>
-        <td>$(Build.RequestedFor)</td>
-     </tr>
-     <tr>
-        <td><b>Repository</b></td>
-        <td><a href=$(Build.Repository.Uri)>$(Build.Repository.Uri)</a></td>
-     </tr>
-     <tr>
-        <td><b>Branch</b></td>
-        <td>$(Build.SourceBranchName)</td>
-     </tr>
-     <tr>
-        <td><b>Latest Commit</b></td>
-        <td><a href=$(Build.Repository.Uri)/commit/$(Build.SourceVersion)>$(Build.SourceVersion)</a></td>
-     </tr>
-     <tr>
-        <td><b>Latest Commit Message</b></td>
-        <td><pre>$(Build.SourceVersionMessage)</pre></td>
-     </tr>
-     </table>
-
-     ## Terraform Show Output
-
-     \`\`\` sh
-     EOT
-
-     cat ${tfout} >> ${file_name}
-     cat <<EOT >> ${file_name}
-     \`\`\`
-     EOT
-    workingDirectory: '$(Agent.WorkFolder)'
-    displayName: 'Write Terraform Show to Wiki'
-
-  - script: |
-     # WORKING DIRECTORY IS $(Agent.WorkFolder)/wiki/${{ parameters.wikiDirectory }}
-     bn=$(Build.DefinitionName)
-     build_name=${bn// /_}
-
-     # CD INTO THE build_name DIRECTORY
-     cd ${build_name}
-
-     # CREATE THE Archives DIRECTORY IF IT DOESN'T EXIST
-     mkdir -p "Archives"
-
-     # FIND ALL FILES IN THE CURRENT WORKING DIRECTORY | 
-     #   REVERSE SORT | 
-     #   GET ALL BUT THE LATEST 10 FILES |
-     #   MOVE THEM TO THE Archives FOLDER
-     find * -maxdepth 0 -type f | sort -nr | awk 'NR > 10' | xargs -i mv {} ./Archives/
-    workingDirectory: '$(Agent.WorkFolder)/wiki/${{ parameters.wikiDirectory }}'
-    displayName: 'Archive Old Builds'
-
-  - script: |
-     git pull
-     git add .
-     git commit -m "Build $(Build.BuildNumber)"
-     git ls-files
-     git push https://azdo:cvuwyfhf4ncq7dhon7qfqin7ew2mhucbpcgsmbid3stpgvqrlksa@dev.azure.com/az-do/az-pipeline-terraform/_git/wiki/
-     echo "### Link To Build ###"
-     echo "https://dev.azure.com/az-do/az-pipeline-terraform/wiki/_wiki/wikis/${{ parameters.wikiDirectory }}/9/?pagePath=%2FBuilds%2F$(Build.DefinitionName)%2F$(Build.BuildNumber)"
-    workingDirectory: '$(Agent.WorkFolder)/wiki'
-    displayName: 'Git Push Wiki - View Link Here'
+  - task: Bash@3
+    displayName: "Git Push Wiki - View Link Here'"
+    inputs:
+      workingDirectory: '$(Agent.WorkFolder)/wiki'
+      filePath: scripts/push-to-wiki.sh
+    env:
+      gitToken: $(git.tokenAzureDevops)
+      targetGitOrganization: $(admin.azureDevOpsOrganization)
+      targetDir: $(admin.wikiProject)
+      targetProject: $(settings.project)
+      wikiDirectory: $(settings.wikireleasedirectory)
