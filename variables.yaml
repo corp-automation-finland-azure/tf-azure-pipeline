@@ -22,7 +22,7 @@ variables:
   settings.wikireleasedirectory: tf-es-demo-release
   settings.cloneSourceWiki: azuredevops
   settings.cloneSourceTerraformCode: github
-  settings.azureDevopsUrl: devops.azure.com
+  settings.azureDevopsUrl: dev.azure.com
   settings.githubUrl: git.evry.cloud
 
 
