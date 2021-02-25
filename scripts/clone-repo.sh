@@ -8,5 +8,5 @@ if [[ "$cloneUrl" == "$SETTINGS_CLONESOURCETERRAFORMCODE" ]]; then
 elif [[ "$cloneUrl" == "$SETTINGS_CLONESOURCEWIKI" ]]; then
     if [ -d "$targetDir" ]; then rm -rf $targetDir; fi
     # azdo is generic key for azure devops repos
-    git clone https://azdo:$gitToken@$SETTINGS_AZUREDEVOPSURL/$targetGitOrganization/$targetProject/_git/$targetDir $targetDir
+    git clone https://azdo:$gitToken@dev.azure.com/$targetGitOrganization/$targetProject/_git/$targetDir $targetDir
 fi
