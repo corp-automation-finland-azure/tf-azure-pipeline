@@ -6,7 +6,7 @@ jobs:
     displayName: "Terraform Plan"
     pool: "az-pipeline-terraform-agent-pool"
     steps:
-      - checkout: $(settings.pipelineProject)
+      - checkout: pipeline-terraform
         clean: true
         persistCredentials: true
       - task: AzureCLI@2
