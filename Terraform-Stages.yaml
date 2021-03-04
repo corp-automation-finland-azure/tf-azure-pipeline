@@ -1,8 +1,7 @@
 stages:
 - stage: Plan
-  # displayName: 'Terraform Plan'
   jobs:
-  - job:
+  - job: A1
     steps: 
     - checkout: peab-pipeline
     - template: Terraform-Plan.yaml@peab-pipeline
