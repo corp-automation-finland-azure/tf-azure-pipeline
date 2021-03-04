@@ -12,7 +12,7 @@ jobs:
       - task: AzureCLI@2
         displayName: Set Terraform backend
         inputs:
-          azureSubscription: $(admin.azureConnection)
+          azureSubscription: $(admin.azureStorageAccountConnection)
           scriptType: bash
           scriptPath: scripts/initialize-terraform-backend.sh
           addSpnToEnvironment: true
