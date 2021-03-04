@@ -3,9 +3,9 @@ stages:
   displayName: 'Terraform Plan'
   jobs:
   - job:
-    - steps: 
-      - checkout: peab-pipeline
-      - template: Terraform-Plan.yaml@peab-pipeline
+    steps: 
+    - checkout: peab-pipeline
+    - template: Terraform-Plan.yaml@peab-pipeline
 
 - stage: Publish
   displayName: 'Publish Plan to Wiki'
