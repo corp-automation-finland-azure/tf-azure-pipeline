@@ -6,7 +6,7 @@ export AZURE_STORAGE_ACCOUNT=$storageAccount
 # export TERRAFORM_BREAK_LEASE=1
 export AZURE_STORAGE_KEY="$(az storage account keys list -g "$RG" -n "$AZURE_STORAGE_ACCOUNT" --query '[0].value' -o tsv)"
 if test -z "$AZURE_STORAGE_KEY"; then
-    az group create -n $RG -o none
+    az group create --location $location --resource-group $RG
     az configure --defaults group=$RG location=$location
     # az group create -n $RG -o none
     az storage account create -n "$AZURE_STORAGE_ACCOUNT" -o none
