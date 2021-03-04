@@ -6,7 +6,7 @@ jobs:
   displayName: 'Publish to Wiki'
   pool: 'az-pipeline-terraform-agent-pool'
   steps:
-  - checkout: self
+  - checkout: $(settings.pipelineProject)
     persistCredentials: true
   - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
     displayName: Install Terraform
