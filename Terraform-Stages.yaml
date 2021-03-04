@@ -2,7 +2,9 @@ stages:
 - stage: Plan
   displayName: 'Terraform Plan'
   jobs:
-  - template: Terraform-Plan.yaml
+  - steps: 
+    - checkout: self
+    - template: Terraform-Plan.yaml
 
 - stage: Publish
   displayName: 'Publish Plan to Wiki'
