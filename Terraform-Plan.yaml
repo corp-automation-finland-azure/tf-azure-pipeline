@@ -28,12 +28,12 @@ jobs:
         inputs:
           terraformVersion: $(terraform.version)
       - task: Bash@3
-        displayName: "Clone es main"
+        displayName: "Clone terraform code for deployment"
         inputs:
           filePath: scripts/clone-repo.sh
         env:
           gitToken: $(git.token)
-          targetGitOrganization: $(admin.azureDevOpsOrganization)
+          targetGitOrganization: $(admin.azureGithubClientOrganization)
           targetDir: $(terraform.path)
           cloneUrl: $(settings.cloneSourceTerraformCode)
 
