@@ -14,7 +14,6 @@ terraform init \
     -no-color \
     -input=false
 if  [[ $terraformDestroy == True ]]; then
-  terraform state rm 'module.vnet_hub.data.azurerm_client_config.current'
   terraform destroy -auto-approve
   terraform state list 
 fi
