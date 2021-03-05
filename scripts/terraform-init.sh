@@ -12,7 +12,7 @@ terraform init \
     -backend-config=client_secret="$ARM_CLIENT_SECRET" \
     -no-color \
     -input=false
-terraform destroy
+terraform destroy -auto-approve
 echo "------------------------------------build number--------------------"
 echo ${BUILD_BUILDNUMBER}
 echo "init complete"
