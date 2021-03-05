@@ -14,6 +14,7 @@ terraform init \
     -input=false
 if  [[ $terraformDestroy == True ]]; then
   terraform destroy -auto-approve
+  terraform state list | cut -f 1 -d '[' | xargs -L 0 terraform state rm
 fi
 echo "------------------------------------build number--------------------"
 echo ${BUILD_BUILDNUMBER}
