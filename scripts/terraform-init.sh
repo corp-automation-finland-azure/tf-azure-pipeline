@@ -12,11 +12,13 @@ terraform init \
     -backend-config=client_secret="$ARM_CLIENT_SECRET" \
     -no-color \
     -input=false
-terraform destroy -auto-approve
+if  [[ $terraformDestroy == True ]]; then
+  terraform destroy -auto-approve
+fi
 echo "------------------------------------build number--------------------"
 echo ${BUILD_BUILDNUMBER}
 echo "init complete"
-terraform plan -out="${BUILD_BUILDNUMBER}.tfplan" -no-color -input=false -destroy
+terraform plan -out="${BUILD_BUILDNUMBER}.tfplan" -no-color -input=false
 echo "##vso[task.logissue type=warning]Terraform plan completed"
 
 [[ $terraformShowFlag == True ]] \

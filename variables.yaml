@@ -19,6 +19,7 @@ variables:
   terraform.storageAccount: tfdmteststorageaccount1
   terraform.storageAccountContainer: tfdmsacontainer1
   terraform.version: 0.14.6
+  terraform.destroy: False
   settings.wikireleasedirectory: tf-es-demo-release
   settings.cloneSourceWiki: azuredevops
   settings.cloneSourceTerraformCode: github

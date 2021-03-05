@@ -63,6 +63,7 @@ jobs:
           ARM_CLIENT_ID: $ARM_CLIENT_ID
           ARM_CLIENT_SECRET: $ARM_CLIENT_SECRET
           terraformShowFlag: "False"
+          terraformDestroy: $(terraform.destroy)
       - script: |
           echo "Compressing $(terraform.path) directory..."
           tar -czf ${{ parameters.terraformRemoteStateFile }}.tar.gz -C $(terraform.path) .

@@ -75,6 +75,7 @@ jobs:
       ARM_CLIENT_ID: $ARM_CLIENT_ID
       ARM_CLIENT_SECRET: $ARM_CLIENT_SECRET
       terraformShowFlag: "True"
+      terraformDestroy: $(terraform.destroy)
   - task: Bash@3
     displayName: "Write Terraform Show to Wiki"
     inputs:

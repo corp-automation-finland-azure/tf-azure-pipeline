@@ -48,3 +48,8 @@ If you want to learn more about creating good readme files then refer the follow
   
 ## Following these above steps the github based azure pipeline is integrated with Azure devops/
 
+## Terraform Plan
+Script terraform-init uses multiple flags to do different stuff
+1. terraform show flag : the flag is used to show the output of terraform plan and also to put the output to an out file
+2. terraform destroy: if at some point we want resources to be destroyed and redeployed, this flag should be used defaults to True/False
+
