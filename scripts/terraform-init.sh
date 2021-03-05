@@ -16,10 +16,8 @@ terraform destroy
 echo "------------------------------------build number--------------------"
 echo ${BUILD_BUILDNUMBER}
 echo "init complete"
-if[$destroy = true]; then
-  terraform plan -out="${BUILD_BUILDNUMBER}.tfplan" -no-color -input=false -destroy
-
-  echo "##vso[task.logissue type=warning]Terraform plan completed"
+terraform plan -out="${BUILD_BUILDNUMBER}.tfplan" -no-color -input=false -destroy
+echo "##vso[task.logissue type=warning]Terraform plan completed"
 
 [[ $terraformShowFlag == True ]] \
   && 
