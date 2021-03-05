@@ -1,10 +1,7 @@
 #!/bin/bash
 set -eux  # fail on error
 echo $ARM_TENANT_ID
-if  [[ $terraformDestroy == True ]]; then
-  terraform destroy -auto-approve
-  terraform state list 
-fi
+
 terraform init \
     -backend-config=storage_account_name=${terraformBackendStorageAccount} \
     -backend-config=container_name=${terraformBackendStorageContainer} \
@@ -16,7 +13,10 @@ terraform init \
     -backend-config=client_secret="$ARM_CLIENT_SECRET" \
     -no-color \
     -input=false
-
+if  [[ $terraformDestroy == True ]]; then
+  terraform destroy -auto-approve
+  terraform state list 
+fi
 echo "------------------------------------build number--------------------"
 echo ${BUILD_BUILDNUMBER}
 echo "init complete"
