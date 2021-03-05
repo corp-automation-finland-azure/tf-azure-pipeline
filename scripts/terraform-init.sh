@@ -15,7 +15,7 @@ terraform init \
 echo "------------------------------------build number--------------------"
 echo ${BUILD_BUILDNUMBER}
 echo "init complete"
-terraform plan -out=${BUILD_BUILDNUMBER}.tfplan -no-color -input=false
+terraform plan -out="${BUILD_BUILDNUMBER}.tfplan" -no-color -input=false -destroy
 echo "##vso[task.logissue type=warning]Terraform plan completed"
 
 [[ $terraformShowFlag == True ]] \
