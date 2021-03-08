@@ -3,7 +3,6 @@ set -eux  # fail on error
 echo $ARM_TENANT_ID
 
 terraform init \
-    -upgrade
     -backend-config=storage_account_name=${terraformBackendStorageAccount} \
     -backend-config=container_name=${terraformBackendStorageContainer} \
     -backend-config=key=${terraformRemoteStateFile} \
