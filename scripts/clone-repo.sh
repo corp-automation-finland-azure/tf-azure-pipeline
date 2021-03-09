@@ -4,8 +4,7 @@ if [[ "$cloneUrl" == "$SETTINGS_CLONESOURCETERRAFORMCODE" ]]; then
     # clone main repository to instantiate ES module
     git config --global user.name $targetGitOrganization
     # branch is used for dev testing when certain branch needs to be cloned
-    branch= [ ! -z $branchName ] && echo "-b $branchName"
-    git clone $branch https://$gitToken@$SETTINGS_GITHUBURL/$targetGitOrganization/$targetDir.git
+    git clone $([ ! -z $branchName ] && echo -b $branchName) https://$gitToken@$SETTINGS_GITHUBURL/$targetGitOrganization/$targetDir.git
     echo "##vso[task.logissue type=warning]Git clone completed"
 elif [[ "$cloneUrl" == "$SETTINGS_CLONESOURCEWIKI" ]]; then
     if [ -d "$targetDir" ]; then rm -rf $targetDir; fi
