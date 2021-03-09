@@ -36,7 +36,7 @@ jobs:
           targetGitOrganization: $(admin.azureGithubClientOrganization)
           targetDir: $(terraform.path)
           cloneUrl: $(settings.cloneSourceTerraformCode)
-
+          branchName: $(settings.branch)
       - task: AzureCLI@2
         displayName: "Setup Authentication"
         inputs:

@@ -59,7 +59,7 @@ jobs:
       targetDir: $(admin.wikiProject)
       targetProject: $(settings.project)
       cloneUrl: $(settings.cloneSourceWiki)
-
+      branchName: $(settings.branch)
   - task: Bash@3
     displayName: "'Terraform Show - Output'"
     inputs:

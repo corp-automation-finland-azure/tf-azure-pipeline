@@ -3,7 +3,7 @@ if [[ "$cloneUrl" == "$SETTINGS_CLONESOURCETERRAFORMCODE" ]]; then
      echo "##vso[task.setvariable variable=GIT_TOKEN]$gitToken"
     # clone main repository to instantiate ES module
     git config --global user.name $targetGitOrganization
-    git clone -b feature/core https://$gitToken@$SETTINGS_GITHUBURL/$targetGitOrganization/$targetDir.git
+    git clone [ ! -z $branchName ] && echo "-b $branchName" https://$gitToken@$SETTINGS_GITHUBURL/$targetGitOrganization/$targetDir.git
     echo "##vso[task.logissue type=warning]Git clone completed"
 elif [[ "$cloneUrl" == "$SETTINGS_CLONESOURCEWIKI" ]]; then
     if [ -d "$targetDir" ]; then rm -rf $targetDir; fi
