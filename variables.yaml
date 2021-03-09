@@ -26,7 +26,7 @@ variables:
   settings.azureDevopsUrl: dev.azure.com
   settings.githubUrl: git.evry.cloud
   # branch used for dev testing terraform client project default is empty if master code needs to checkout
-  $(settings.branch): ""
+  settings.branch: ""
 
 
 
