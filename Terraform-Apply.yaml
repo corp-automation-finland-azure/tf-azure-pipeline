@@ -1,6 +1,5 @@
 parameters:
-  terraformRemoteStateFileStorageAccount: "tfstate$(customer.shortname)sa"
-  terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(customer.shortname)-$(ENVIRONMENT).tfstate"
+  terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
 
 jobs:
 - deployment: Apply
@@ -21,20 +20,19 @@ jobs:
           - download: current
             artifact: 'tfplan'
           - script: |
-              echo "##[debug] ------------${BUILD_BUILDNUMBER}--------------"
-              mkdir -p ${{ parameters.terraformRemoteStateFile }}/Terraform 
-              tar -xzvf tfplan/${{ parameters.terraformRemoteStateFile }}.tar.gz --directory ${{ parameters.terraformRemoteStateFile }}/Terraform
-              echo "##[debug] Extract terraform state file complete"
-            displayName: 'Extract Artifact to ${{ parameters.terraformRemoteStateFile }}/Terraform'
+              echo "------------${BUILD_BUILDNUMBER}--------------"
+              mkdir -p ${{parameters.terraformRemoteStateFile}}/Terraform 
+              tar -xzvf tfplan/${{parameters.terraformRemoteStateFile}}.tar.gz --directory ${{parameters.terraformRemoteStateFile}}/Terraform
+            displayName: 'Extract Artifact to ${{parameters.terraformRemoteStateFile}}/Terraform'
             workingDirectory: '$(Pipeline.Workspace)'
           - script: |
-             if [[ ! -f  .terraform/terraform.tfstate ]] ; then
-                echo "##vso[task.logissue type=error] terraform.tfstate (.terraform/terraform.tfstate) is not here, aborting."
-                exit
-             else
-               cat .terraform/terraform.tfstate
-             fi
-            workingDirectory: '$(Pipeline.Workspace)/${{ parameters.terraformRemoteStateFile }}/Terraform'
+              if [[ ! -f  .terraform/terraform.tfstate ]] ; then
+                  echo 'terraform.tfstate (.terraform/terraform.tfstate) is not there, aborting.'
+                  exit
+              else
+                cat .terraform/terraform.tfstate
+              fi
+            workingDirectory: '$(Pipeline.Workspace)/${{parameters.terraformRemoteStateFile}}/Terraform'
             displayName: 'Check for terraform.tfstate'
           - task: AzureCLI@2
             displayName: "Setup Authentication"
@@ -45,13 +43,23 @@ jobs:
               failOnStandardError: "true"
               scriptPath: scripts/set-variables.sh
             env:
-              terraformBackendStorageAccount: ${{ parameters.terraformRemoteStateFileStorageAccount }}
-              targetGitOrganization: $(admin.azureDevOpsOrganization)
+              terraformBackendStorageAccount: $(terraform.storageAccount)
               gitToken: $(git.token)
+
+          - script: |
+              git config --global --list | grep url. | awk -F '.instead' '{print $1}' | while read line
+              do
+                echo $line
+              git config --global --remove-section $line
+              done
+              git config --global url."https://azdo:$(git.token)@dev.azure.com/$(admin.azureDevOpsOrganization)".insteadOf https://dev.azure.com/$(admin.azureDevOpsOrganization)
+              git config --global url."https://azdo:$(git.token)@$(admin.azureDevOpsOrganization)".insteadOf https://$(admin.azureDevOpsOrganization)
+              git init
+            displayName: 'Redirect git URLs to use the Access Token So Modules Can Be Pulled In'
           - script: |
               terraform apply  -no-color -input=false ${BUILD_BUILDNUMBER}.tfplan
             displayName: 'Terraform Apply'
-            workingDirectory: '$(Pipeline.Workspace)/${{ parameters.terraformRemoteStateFile }}/Terraform'
+            workingDirectory: '$(Pipeline.Workspace)/${{parameters.terraformRemoteStateFile}}/Terraform'
             env:
               TF_IN_AUTOMATION: true
               TF_VAR_subscription_id: "$(ARM_SUBSCRIPTION_ID)"
