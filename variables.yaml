@@ -14,7 +14,11 @@ variables:
   settings.project: az-pipeline-terraform
   settings.department: az-do
   terraform.backendLocation: West Europe
-  terraform.version: 0.14.7
+  terraform.path: tf-es-demo
+  terraform.resourceGroup: tfdmresourcegroup1
+  terraform.storageAccount: tfdmteststorageaccount1
+  terraform.storageAccountContainer: tfdmsacontainer1
+  terraform.version: 0.14.6
   terraform.destroy: False
   settings.wikireleasedirectory: tf-es-demo-release
   settings.cloneSourceWiki: azuredevops
@@ -23,9 +27,6 @@ variables:
   settings.githubUrl: git.evry.cloud
   # branch used for dev testing terraform client project default is empty if master code needs to checkout
   settings.branch: ""
-  customer.shortname: ""
-  azure.enterpriseScaleSubscription: ""
-  
 
 
 
