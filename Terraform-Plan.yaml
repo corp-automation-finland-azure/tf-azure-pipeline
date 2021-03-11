@@ -1,5 +1,11 @@
 parameters:
-  terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
+  terraformRemoteStateFileResourceGroup: "tf-state-$(customer.shortname)-rg"
+  terraformRemoteStateFileStorageAccount: "tfstate$(customer.shortname)sa"
+  terraformRemoteStateFileBlobContainer: "tf-state-$(customer.shortname)-bc"
+  terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(customer.shortname)-$(ENVIRONMENT).tfstate"
+  # as it is now terraformPath must match the github repository name which is NOT intuitive
+  # maybe need new variable for repo name?
+  terraformPath: "$(customer.shortname)-$(azure.enterpriseScaleSubscription)"
 
 jobs:
   - job: Plan
@@ -17,12 +23,11 @@ jobs:
           scriptPath: scripts/initialize-terraform-backend.sh
           addSpnToEnvironment: true
         env:
-          resourceGroup: $(terraform.resourceGroup)
-          storageAccount: $(terraform.storageAccount)
-          location: $(terraform.backendLocation)
-          remoteStateFile: ${{ parameters.terraformRemoteStateFile }}
-          storageContainer: $(terraform.storageAccountContainer)
-
+          terraformBackendLocation: $(terraform.backendLocation)
+          terraformBackendResourceGroup: ${{ parameters.terraformRemoteStateFileResourceGroup }}
+          terraformBackendStorageAccount: ${{ parameters.terraformRemoteStateFileStorageAccount }}
+          terraformBackendStorageContainer: ${{ parameters.terraformRemoteStateFileBlobContainer }}
+          terraformRemoteStateFile: ${{ parameters.terraformRemoteStateFile }}
       - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
         displayName: Install Terraform
         inputs:
@@ -34,7 +39,7 @@ jobs:
         env:
           gitToken: $(git.token)
           targetGitOrganization: $(admin.azureGithubClientOrganization)
-          targetDir: $(terraform.path)
+          targetDir: ${{ parameters.terraformPath }}
           cloneUrl: $(settings.cloneSourceTerraformCode)
           branchName: $(settings.branch)
       - task: AzureCLI@2
@@ -46,27 +51,31 @@ jobs:
           failOnStandardError: "true"
           scriptPath: scripts/set-variables.sh
         env:
-          terraformBackendStorageAccount: $(terraform.storageAccount)
+          terraformBackendStorageAccount: ${{ parameters.terraformRemoteStateFileStorageAccount }}
+          targetGitOrganization: $(admin.azureDevOpsOrganization)
           gitToken: $(git.token)
       - task: Bash@3
         displayName: "Terraform Plan"
         inputs:
-          workingDirectory: $(terraform.path)
+          workingDirectory: ${{ parameters.terraformPath }}
           filePath: scripts/terraform-init.sh
         env:
-          terraformBackendStorageAccount: $(terraform.storageAccount)
-          terraformBackendStorageContainer: $(terraform.storageAccountContainer)
+          terraformBackendResourceGroup: ${{ parameters.terraformRemoteStateFileResourceGroup }}
+          terraformBackendStorageAccount: ${{ parameters.terraformRemoteStateFileStorageAccount }}
+          terraformBackendStorageContainer: ${{ parameters.terraformRemoteStateFileBlobContainer }}
           terraformRemoteStateFile: ${{ parameters.terraformRemoteStateFile }}
-          terraformBackendResourceGroup: $(terraform.resourceGroup)
           ARM_SUBSCRIPTION_ID: $ARM_SUBSCRIPTION_ID
           ARM_TENANT_ID: $ARM_TENANT_ID
           ARM_CLIENT_ID: $ARM_CLIENT_ID
           ARM_CLIENT_SECRET: $ARM_CLIENT_SECRET
+          gitToken: $(git.token)
           terraformShowFlag: "False"
           terraformDestroy: $(terraform.destroy)
       - script: |
-          echo "Compressing $(terraform.path) directory..."
-          tar -czf ${{ parameters.terraformRemoteStateFile }}.tar.gz -C $(terraform.path) .
-        displayName: "Compress $(terraform.path) Artifact"
+          echo "Compressing ${{ parameters.terraformPath }} directory..."
+          tar -czf ${{ parameters.terraformRemoteStateFile }}.tar.gz -C ${{ parameters.terraformPath }} .
+          echo "##[debug] Compress terraform directory done"
+        displayName: "Compress ${{ parameters.terraformPath }} Artifact"
       - publish: ${{ parameters.terraformRemoteStateFile }}.tar.gz
         artifact: "tfplan"
+        

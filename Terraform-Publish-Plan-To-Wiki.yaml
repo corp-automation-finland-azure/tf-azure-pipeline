@@ -1,5 +1,9 @@
 parameters:
-  terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
+  terraformRemoteStateFileResourceGroup: "tf-state-$(customer.shortname)-rg"
+  terraformRemoteStateFileStorageAccount: "tfstate$(customer.shortname)sa"
+  terraformRemoteStateFileBlobContainer: "tf-state-$(customer.shortname)-bc"
+  terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(customer.shortname)-$(ENVIRONMENT).tfstate"
+  terraformPath: "$(customer.shortname)-$(azure.enterpriseScaleSubscription)"
   
 jobs:
 - job: Publish
@@ -15,21 +19,20 @@ jobs:
   - download: current
     artifact: 'tfplan'
   - script: |
-     mkdir -p ${{parameters.terraformRemoteStateFile}}/Terraform 
-     tar -xzvf tfplan/${{parameters.terraformRemoteStateFile}}.tar.gz --directory ${{parameters.terraformRemoteStateFile}}/Terraform
-    displayName: 'Extract Artifact to ${{parameters.terraformRemoteStateFile}}/Terraform'
+     mkdir -p ${{ parameters.terraformRemoteStateFile }}/Terraform 
+     tar -xzvf tfplan/${{parameters.terraformRemoteStateFile}}.tar.gz --directory ${{ parameters.terraformRemoteStateFile }}/Terraform
+     echo "##[debug] Uncompress terraform directory done"
+    displayName: 'Extract Artifact to ${{ parameters.terraformRemoteStateFile }}/Terraform'
     workingDirectory: '$(Pipeline.Workspace)'
   - script: |
      if [[ ! -f  .terraform/terraform.tfstate ]] ; then
-         echo 'terraform.tfstate (.terraform/terraform.tfstate) is not there, aborting.'
-         exit
+        echo "##vso[task.logissue type=error] terraform.tfstate (.terraform/terraform.tfstate) is not here, aborting."
+        exit
      else
        cat .terraform/terraform.tfstate
      fi
-    workingDirectory: '$(Pipeline.Workspace)/${{parameters.terraformRemoteStateFile}}/Terraform'
+    workingDirectory: '$(Pipeline.Workspace)/${{ parameters.terraformRemoteStateFile }}/Terraform'
     displayName: 'Check for terraform.tfstate'
-
-  # need Azcli for setup authentication as it requires az login
   - task: AzureCLI@2
     displayName: "Setup Authentication"
     inputs:
@@ -39,14 +42,14 @@ jobs:
       failOnStandardError: "true"
       scriptPath: scripts/set-variables.sh
     env:
-      terraformBackendStorageAccount: $(terraform.storageAccount)
+      terraformBackendStorageAccount: ${{ parameters.terraformRemoteStateFileStorageAccount }}
+      targetGitOrganization: $(admin.azureDevOpsOrganization)
       gitToken: $(git.token)
-
   - script: |
-     mkdir -p $(terraform.path)
-     tar -xzvf tfplan/${{ parameters.terraformRemoteStateFile }}.tar.gz --directory $(terraform.path)
+     mkdir -p ${{ parameters.terraformPath }}
+     tar -xzvf tfplan/${{ parameters.terraformRemoteStateFile }}.tar.gz --directory ${{ parameters.terraformPath }}
+     echo "##[debug] Compress terraform state file done"
     workingDirectory: '$(Pipeline.Workspace)'
-  
   - task: Bash@3
     displayName: "Git Clone Wiki"
     continueOnError: 'true'
@@ -64,16 +67,17 @@ jobs:
     displayName: "'Terraform Show - Output'"
     inputs:
       filePath: scripts/terraform-init.sh
-      workingDirectory: '$(Pipeline.Workspace)/$(terraform.path)'
+      workingDirectory: '$(Pipeline.Workspace)/${{ parameters.terraformPath }}'
     env:
-      terraformBackendStorageAccount: $(terraform.storageAccount)
-      terraformBackendStorageContainer: $(terraform.storageAccountContainer)
+      terraformBackendResourceGroup: ${{ parameters.terraformRemoteStateFileResourceGroup }}
+      terraformBackendStorageAccount: ${{ parameters.terraformRemoteStateFileStorageAccount }}
+      terraformBackendStorageContainer: ${{ parameters.terraformRemoteStateFileBlobContainer }}
       terraformRemoteStateFile: ${{ parameters.terraformRemoteStateFile }}
-      terraformBackendResourceGroup: $(terraform.resourceGroup)
       ARM_SUBSCRIPTION_ID: $ARM_SUBSCRIPTION_ID
       ARM_TENANT_ID: $ARM_TENANT_ID
       ARM_CLIENT_ID: $ARM_CLIENT_ID
       ARM_CLIENT_SECRET: $ARM_CLIENT_SECRET
+      TF_VAR_GIT_TOKEN: $(git.token)
       terraformShowFlag: "True"
       terraformDestroy: "False"
   - task: Bash@3
@@ -83,7 +87,7 @@ jobs:
       workingDirectory: $(Agent.WorkFolder)
       filePath: scripts/terraform-write-to-wiki.sh
     env:
-      terraformDirectory: $(terraform.path)
+      terraformDirectory: ${{ parameters.terraformPath }}
       wikiDirectory: $(settings.wikireleasedirectory)
   - task: Bash@3
     displayName: "Archive Old Builds"
@@ -92,7 +96,6 @@ jobs:
       filePath: scripts/archive-old-builds.sh
     env:
       wikiDirectory: $(settings.wikireleasedirectory)
-
   - task: Bash@3
     displayName: "Git Push Wiki - View Link Here'"
     inputs:
