@@ -1,13 +1,13 @@
 #!/bin/bash
+echo "##[group]Initialise terraform"
+echo "##[debug]  Terraform init script started"
 set -eux  # fail on error
-echo $ARM_TENANT_ID
-
 terraform init \
     -upgrade \
+    -backend-config=resource_group_name=${terraformBackendResourceGroup} \
     -backend-config=storage_account_name=${terraformBackendStorageAccount} \
     -backend-config=container_name=${terraformBackendStorageContainer} \
     -backend-config=key=${terraformRemoteStateFile} \
-    -backend-config=resource_group_name=${terraformBackendResourceGroup} \
     -backend-config=subscription_id=$ARM_SUBSCRIPTION_ID \
     -backend-config=tenant_id=$ARM_TENANT_ID \
     -backend-config=client_id=$ARM_CLIENT_ID \
@@ -18,13 +18,13 @@ if  [[ $terraformDestroy == True ]]; then
   terraform destroy -auto-approve
   terraform state list 
 fi
-echo "------------------------------------build number--------------------"
-echo ${BUILD_BUILDNUMBER}
-echo "init complete"
+echo "##[debug] Terraform init complete for build: ${BUILD_BUILDNUMBER}"
+
 terraform plan -out="${BUILD_BUILDNUMBER}.tfplan" -no-color -input=false
-echo "##vso[task.logissue type=warning]Terraform plan completed"
+echo "##[debug] Terraform plan complete for build: ${BUILD_BUILDNUMBER}"
 
 [[ $terraformShowFlag == True ]] \
   && 
   terraform show -no-color ${BUILD_BUILDNUMBER}.tfplan
   terraform show -no-color ${BUILD_BUILDNUMBER}.tfplan > tfplan.out
+echo "##[endgroup]"

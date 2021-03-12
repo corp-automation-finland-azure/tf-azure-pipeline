@@ -1,4 +1,6 @@
 #!/bin/bash
+echo "##[group]Archive old builds"
+echo "##[debug] Archive old builds script started"
 # WORKING DIRECTORY IS $(Agent.WorkFolder)/wiki/${{ parameters.wikiDirectory }}
 bn=$BUILD_DEFINITIONNAME
 build_name=${bn// /_}
@@ -14,3 +16,5 @@ mkdir -p "Archives"
 #   GET ALL BUT THE LATEST 10 FILES |
 #   MOVE THEM TO THE Archives FOLDER
 find * -maxdepth 0 -type f | sort -nr | awk 'NR > 10' | xargs -i mv {} ./Archives/
+echo "##[debug] find and move old builds to ./Archives/ done"
+echo "##[endgroup]"

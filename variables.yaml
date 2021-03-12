@@ -1,32 +1,38 @@
 variables:
-  admin.azureConnection: tf-es-demo-service-connection
-  admin.azureEnvironmentConnection: tf-es-demo-service-connection
+  admin.azureConnection: azdoConnectivityPrincipal
+  # service connection for subscription storing state files and storage account
+  admin.azureEnvironmentConnection: azdoConnectivityPrincipal
   admin.azureDevOpsOrganization: az-do
-  admin.azureDevOpsWikiOrganization: azdo
-  admin.azureDevOpsProject: az-pipeline-terraform
+  admin.azureGithubClientOrganization: tietoevry-finland-client
+  admin.azureDevOpsProject: peab-connectivity
   admin.wikiProject: wiki
-  admin.bastionHostName: tf-test-bastion-dm1
-  admin.jumpHostNamePrefix: tf-test-jumphost-vm-dm1
-  admin.subscriptionId: a3815a48-67ba-4884-a13c-58ea7d67c0dd
+  admin.bastionHostName: peab-con-test-bastion-dm1
+  admin.jumpHostNamePrefix: peab-con-test-jumphost-vm-dm1
+  admin.subscriptionId: 90cdcdf6-2996-47cc-8d9d-6ef65ae65aae
   git.token: 17cabfaed8ffbed9b470f3dfc724fb4f7be21467
   git.tokenAzuredevops: cvuwyfhf4ncq7dhon7qfqin7ew2mhucbpcgsmbid3stpgvqrlksa
   settings.location: westeurope
   settings.project: az-pipeline-terraform
   settings.department: az-do
   terraform.backendLocation: West Europe
-  terraform.path: tf-es-demo
-  terraform.resourceGroup: tfdmresourcegroup1
-  terraform.storageAccount: tfdmteststorageaccount1
-  terraform.storageAccountContainer: tfdmsacontainer1
-  terraform.version: 0.14.6
+  terraform.path: peab-connectivity
+  terraform.version: 0.14.7
   terraform.destroy: False
-  settings.wikireleasedirectory: tf-es-demo-release
+  terraform.remoteStateFileResourceGroup: "tf-$(azure.esSubscriptionShortname)-$(customer.shortname)-rg"
+  terraform.remoteStateFileStorageAccount: "tf$(azure.esSubscriptionShortname)$(customer.shortname)sa"
+  terraform.remoteStateFileBlobContainer: "tf-$(azure.esSubscriptionShortname)-$(customer.shortname)-bc"
+  terraform.remoteStateFile: "$(admin.azureDevOpsProject)-$(customer.shortname)-$(ENVIRONMENT).tfstate"
+  settings.wikireleasedirectory: "$(customer.shortname)-$(azure.esSubscriptionShortname)-release"
   settings.cloneSourceWiki: azuredevops
   settings.cloneSourceTerraformCode: github
   settings.azureDevopsUrl: dev.azure.com
   settings.githubUrl: git.evry.cloud
+  settings.pipelineProject: peab-pipeline
   # branch used for dev testing terraform client project default is empty if master code needs to checkout
-  settings.branch: ""
+  settings.branch: hub
+  customer.shortname: peab
+  azure.esSubscriptionShortname: con
+  
 
 
 

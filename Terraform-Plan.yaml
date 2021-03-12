@@ -1,6 +1,3 @@
-parameters:
-  terraformRemoteStateFile: "$(admin.azureDevOpsProject)-$(ENVIRONMENT).tfstate"
-
 jobs:
   - job: Plan
     displayName: "Terraform Plan"
@@ -17,12 +14,11 @@ jobs:
           scriptPath: scripts/initialize-terraform-backend.sh
           addSpnToEnvironment: true
         env:
-          resourceGroup: $(terraform.resourceGroup)
-          storageAccount: $(terraform.storageAccount)
-          location: $(terraform.backendLocation)
-          remoteStateFile: ${{ parameters.terraformRemoteStateFile }}
-          storageContainer: $(terraform.storageAccountContainer)
-
+          terraformBackendLocation: $(terraform.backendLocation)
+          terraformBackendResourceGroup: $(terraform.remoteStateFileResourceGroup)
+          terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)
+          terraformBackendStorageContainer: $(terraform.remoteStateFileBlobContainer)
+          terraformRemoteStateFile: $(terraform.remoteStateFile)
       - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
         displayName: Install Terraform
         inputs:
@@ -46,7 +42,8 @@ jobs:
           failOnStandardError: "true"
           scriptPath: scripts/set-variables.sh
         env:
-          terraformBackendStorageAccount: $(terraform.storageAccount)
+          terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)
+          targetGitOrganization: $(admin.azureDevOpsOrganization)
           gitToken: $(git.token)
       - task: Bash@3
         displayName: "Terraform Plan"
@@ -54,19 +51,22 @@ jobs:
           workingDirectory: $(terraform.path)
           filePath: scripts/terraform-init.sh
         env:
-          terraformBackendStorageAccount: $(terraform.storageAccount)
-          terraformBackendStorageContainer: $(terraform.storageAccountContainer)
-          terraformRemoteStateFile: ${{ parameters.terraformRemoteStateFile }}
-          terraformBackendResourceGroup: $(terraform.resourceGroup)
+          terraformBackendResourceGroup: $(terraform.remoteStateFileResourceGroup)
+          terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)
+          terraformBackendStorageContainer: $(terraform.remoteStateFileBlobContainer)
+          terraformRemoteStateFile: $(terraform.remoteStateFile)
           ARM_SUBSCRIPTION_ID: $ARM_SUBSCRIPTION_ID
           ARM_TENANT_ID: $ARM_TENANT_ID
           ARM_CLIENT_ID: $ARM_CLIENT_ID
           ARM_CLIENT_SECRET: $ARM_CLIENT_SECRET
+          gitToken: $(git.token)
           terraformShowFlag: "False"
           terraformDestroy: $(terraform.destroy)
       - script: |
           echo "Compressing $(terraform.path) directory..."
-          tar -czf ${{ parameters.terraformRemoteStateFile }}.tar.gz -C $(terraform.path) .
+          tar -czf $(terraform.remoteStateFile).tar.gz -C $(terraform.path) .
+          echo "##[debug] Compress terraform directory done"
         displayName: "Compress $(terraform.path) Artifact"
-      - publish: ${{ parameters.terraformRemoteStateFile }}.tar.gz
+      - publish: $(terraform.remoteStateFile).tar.gz
         artifact: "tfplan"
+        
