@@ -2,7 +2,8 @@ jobs:
 - deployment: Apply
   displayName: 'Terraform Apply'
   environment: Test
-  pool: 'az-pipeline-terraform-agent-pool'
+  pool:
+    vmImage: 'ubuntu-latest'
   workspace:
     clean: all
   strategy:
@@ -38,7 +39,7 @@ jobs:
               azureSubscription: $(admin.azureEnvironmentConnection)
               scriptType: bash
               addSpnToEnvironment: true
-              failOnStandardError: "true"
+              failOnStandardError: "false"
               scriptPath: scripts/set-variables.sh
             env:
               terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)

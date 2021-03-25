@@ -1,7 +1,8 @@
 jobs:
   - job: Plan
     displayName: "Terraform Plan"
-    pool: "az-pipeline-terraform-agent-pool"
+    pool:
+      vmImage: 'ubuntu-latest'
     steps:
       - checkout: pipeline-terraform
         clean: true

@@ -1,7 +1,8 @@
 jobs:
 - job: Publish
   displayName: 'Publish to Wiki'
-  pool: 'az-pipeline-terraform-agent-pool'
+  pool:
+    vmImage: 'ubuntu-latest'
   steps:
   - checkout: pipeline-terraform
     persistCredentials: true
