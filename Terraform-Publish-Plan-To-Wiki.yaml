@@ -34,12 +34,12 @@ jobs:
       scriptType: bash
       addSpnToEnvironment: true
       failOnStandardError: "false"
-      addRedirect: False
       scriptPath: scripts/set-variables.sh
     env:
       terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)
       targetGitOrganization: $(admin.azureDevOpsOrganization)
       gitToken: $(git.token)
+      addRedirect: False
   - script: |
      mkdir -p $(terraform.path)
      tar -xzvf tfplan/$(terraform.remoteStateFile).tar.gz --directory $(terraform.path)

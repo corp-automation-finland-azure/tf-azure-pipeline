@@ -40,12 +40,12 @@ jobs:
               scriptType: bash
               addSpnToEnvironment: true
               failOnStandardError: "false"
-              addRedirect: False
               scriptPath: scripts/set-variables.sh
             env:
               terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)
               targetGitOrganization: $(admin.azureDevOpsOrganization)
               gitToken: $(git.token)
+              addRedirect: False
           - script: |
               terraform apply  -no-color -input=false ${BUILD_BUILDNUMBER}.tfplan
             displayName: 'Terraform Apply'

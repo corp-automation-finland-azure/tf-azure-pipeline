@@ -41,12 +41,12 @@ jobs:
           scriptType: bash
           addSpnToEnvironment: true
           failOnStandardError: "true"
-          addRedirect: "True"
           scriptPath: scripts/set-variables.sh
         env:
           terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)
           targetGitOrganization: $(admin.azureDevOpsOrganization)
           gitToken: $(git.token)
+          addRedirect: True
       - task: Bash@3
         displayName: "Terraform Plan"
         inputs:
