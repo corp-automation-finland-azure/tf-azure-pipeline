@@ -9,7 +9,8 @@ echo "##vso[task.setvariable variable=ARM_ACCESS_KEY]$(az storage account keys l
 echo "##vso[task.setvariable variable=GIT_TOKEN]${gitToken}"
 echo "##[debug] Variables have been set"
 # delete previous global configurations
-if  [[ $addRedirect == "True" ]]; then
+echo $addRedirect
+if  [[ ${addRedirect} == "True" ]]; then
   git config --global --list | grep url. | awk -F '.instead' '{print $1}' | while read line
   do
     echo $line
