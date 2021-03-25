@@ -9,14 +9,14 @@ echo "##vso[task.setvariable variable=ARM_ACCESS_KEY]$(az storage account keys l
 echo "##vso[task.setvariable variable=GIT_TOKEN]${gitToken}"
 echo "##[debug] Variables have been set"
 # delete previous global configurations
-echo $addRedirect
+echo ${addRedirect}
 if  [[ ${addRedirect} == "True" ]]; then
   git config --global --list | grep url. | awk -F '.instead' '{print $1}' | while read line
   do
     echo $line
   git config --global --remove-section $line
   done
-  echo "$targetGitOrganization"
+  echo "${targetGitOrganization}"
   echo "##[debug] Delete global git configurations done"
   git config --global url."https://azdo:${GIT_TOKEN}@${SETTINGS_GITHUBURL}/${targetGitOrganization}/".insteadOf https://${SETTINGS_GITHUBURL}/${targetGitOrganization}/
   git init
