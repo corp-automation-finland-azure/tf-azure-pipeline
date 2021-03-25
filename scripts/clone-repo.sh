@@ -18,7 +18,7 @@ elif [[ "$cloneUrl" == "$SETTINGS_CLONESOURCEWIKI" ]]; then
         done
     if [ -d "$targetDir" ]; then rm -rf $targetDir; fi
     # azdo is generic key for azure devops repos
-    git clone https://azdo:$gitToken@$SETTINGS_AZUREDEVOPSURL/$targetGitOrganization/$targetProject/_git/$targetDir $targetDir
+    git clone https://azdo:vthvt43skvrd5pqgmfal467ojo54ri4zlrdqw6moiqesvliuwduq@$SETTINGS_AZUREDEVOPSURL/$targetGitOrganization/$targetProject/_git/$targetDir $targetDir
     echo "##[debug] Git clone completed"
 fi
 echo "##[endgroup]"
