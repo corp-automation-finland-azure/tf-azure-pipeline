@@ -1,8 +1,10 @@
 #!/bin/bash
 git pull
 git add .
+echo "add done"
 # refer https://docs.microsoft.com/en-us/azure/devops/pipelines/release/variables?view=azure-devops&tabs=shell for default variables
-git commit -m "Build $BUILD_BUILDNUMBER"
+git commit -m "Build t"
+echo "commit done"
 git ls-files
 git push https://azdo:$gitToken@dev.azure.com/$targetGitOrganization/$targetProject/_git/$targetDir
 echo "### Link To Build ###"
