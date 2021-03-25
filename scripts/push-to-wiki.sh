@@ -1,16 +1,10 @@
 #!/bin/bash
+git config --global user.email "azdo@pipeline.com"
+git config --global user.name "AzureDevops Pipeline"
 git pull
-git status
-echo "status done"
 git add .
-echo "add done"
-git config --global user.email "you@example.com"
-git config --global user.name "Your Name"
-
-
 # refer https://docs.microsoft.com/en-us/azure/devops/pipelines/release/variables?view=azure-devops&tabs=shell for default variables
-git commit -m "Build t"
-echo "commit done"
+git commit -m "Build $BUILD_BUILDNUMBER"
 git ls-files
 git push https://azdo:$gitToken@dev.azure.com/$targetGitOrganization/$targetProject/_git/$targetDir
 echo "### Link To Build ###"

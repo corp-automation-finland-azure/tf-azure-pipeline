@@ -18,7 +18,6 @@ if  [[ $addRedirect == True ]]; then
   echo "$targetGitOrganization"
   echo "##[debug] Delete global git configurations done"
   git config --global url."https://azdo:${GIT_TOKEN}@${SETTINGS_GITHUBURL}/${targetGitOrganization}/".insteadOf https://${SETTINGS_GITHUBURL}/${targetGitOrganization}/
-  git config --global url."https://azdo:${GIT_TOKEAZUREDEVOPS}@$SETTINGS_AZUREDEVOPSURL/${targetGitOrganization}/".insteadOf https://$SETTINGS_AZUREDEVOPSURL/${targetGitOrganization}/
   git init
   echo "##[debug] Git global configuration is set"
   echo "##[endgroup]"
