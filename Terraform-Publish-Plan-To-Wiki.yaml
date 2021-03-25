@@ -34,6 +34,7 @@ jobs:
       scriptType: bash
       addSpnToEnvironment: true
       failOnStandardError: "false"
+      addRedirect: false
       scriptPath: scripts/set-variables.sh
     env:
       terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)

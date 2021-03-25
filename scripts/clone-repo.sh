@@ -10,16 +10,11 @@ if [[ "$cloneUrl" == "$SETTINGS_CLONESOURCETERRAFORMCODE" ]]; then
     git clone $([ ! -z $branchName ] && echo -b $branchName) https://$gitToken@$SETTINGS_GITHUBURL/$targetGitOrganization/$targetDir.git
     echo "##[debug] Git clone completed"
 elif [[ "$cloneUrl" == "$SETTINGS_CLONESOURCEWIKI" ]]; then
-    git config --global --list | grep url. | awk -F '.instead' '{print $1}' | while read line
-    do
-    echo $line
-    git config --global --remove-section $line
-    done
     echo "##[debug] Cloning wiki more"
-    echo "$GIT_TOKENAZUREDEVOPS"
+    echo "$gitToken"
     if [ -d "$targetDir" ]; then rm -rf $targetDir; fi
     # azdo is generic key for azure devops repos
-    git clone https://azdo:$GIT_TOKENAZUREDEVOPS@$SETTINGS_AZUREDEVOPSURL/$targetGitOrganization/$targetProject/_git/$targetDir $targetDir
+    git clone https://azdo:$gitToken@$SETTINGS_AZUREDEVOPSURL/$targetGitOrganization/$targetProject/_git/$targetDir $targetDir
     echo "##[debug] Git clone completed"
 fi
 echo "##[endgroup]"
