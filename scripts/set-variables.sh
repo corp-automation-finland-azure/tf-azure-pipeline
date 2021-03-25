@@ -9,21 +9,23 @@ echo "##vso[task.setvariable variable=ARM_ACCESS_KEY]$(az storage account keys l
 echo "##vso[task.setvariable variable=GIT_TOKEN]${gitToken}"
 echo "##[debug] Variables have been set"
 # delete previous global configurations
+echo "before redirect"
 echo ${addRedirect}
-if  [[ ${addRedirect} == "True" ]]; then
-  git config --global --list | grep url. | awk -F '.instead' '{print $1}' | while read line
-  do
-    echo $line
-  git config --global --remove-section $line
-  done
-  echo "${targetGitOrganization}"
-  echo "##[debug] Delete global git configurations done"
-  git config --global url."https://azdo:${GIT_TOKEN}@${SETTINGS_GITHUBURL}/${targetGitOrganization}/".insteadOf https://${SETTINGS_GITHUBURL}/${targetGitOrganization}/
-  git init
-  echo "##[debug] Git global configuration is set"
-  echo "##[endgroup]"
-  # replace URL so that we can use tokens for modules
-fi
+echo "after redirect"
+# if  [[ ${addRedirect} == "True" ]]; then
+#   git config --global --list | grep url. | awk -F '.instead' '{print $1}' | while read line
+#   do
+#     echo $line
+#   git config --global --remove-section $line
+#   done
+#   echo "${targetGitOrganization}"
+#   echo "##[debug] Delete global git configurations done"
+#   git config --global url."https://azdo:${GIT_TOKEN}@${SETTINGS_GITHUBURL}/${targetGitOrganization}/".insteadOf https://${SETTINGS_GITHUBURL}/${targetGitOrganization}/
+#   git init
+#   echo "##[debug] Git global configuration is set"
+#   echo "##[endgroup]"
+#   # replace URL so that we can use tokens for modules
+# fi
 
 
 
