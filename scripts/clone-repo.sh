@@ -12,6 +12,10 @@ if [[ "$cloneUrl" == "$SETTINGS_CLONESOURCETERRAFORMCODE" ]]; then
 elif [[ "$cloneUrl" == "$SETTINGS_CLONESOURCEWIKI" ]]; then
     echo "##[debug] Cloning wiki more"
     echo "$gitToken"
+     git config --global --list | grep url. | awk -F '.instead' '{print $1}' | while read line
+        do
+        echo $line
+        done
     if [ -d "$targetDir" ]; then rm -rf $targetDir; fi
     # azdo is generic key for azure devops repos
     git clone https://azdo:$gitToken@$SETTINGS_AZUREDEVOPSURL/$targetGitOrganization/$targetProject/_git/$targetDir $targetDir
