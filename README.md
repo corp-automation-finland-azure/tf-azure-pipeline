@@ -13,10 +13,10 @@ The pipeline uses repository configuration to clone pipeline code from client co
 The scripts folder contains scripts required by pipeline to run for e.g terraform init, clone repo etc
 
 ## Installation process with azure devops
-1. Create Personal Access Token in Github Enterprise Server Account
+1. If first time installation, Create or use existing Personal Access Token in Github Enterprise Server Account refer https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token#:~:text=Creating%20a%20token,-Verify%20your%20email&text=In%20the%20upper%2Dright%20corner,Click%20Generate%20new%20token.
 2. Once done, create a service principal for azure deployment as per the subscription the resources need to be deployed, go to project settings and choose service connection
   - Give a name and choose Azure Resource Manager for service/connection type input
-  - Choose service principal (automatic)
+  - Choose service principal (automatic) - https://docs.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure?view=azure-devops
   - Choose scope level - subscription, select the right subscription and do not give any resource group name (otherwise will tie up terraform on resource group scode - Avoid)
   - Give Service Connection Name and description
   - Hit Save, the service principal is now created
