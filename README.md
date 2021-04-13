@@ -52,9 +52,9 @@ tf-azure-pipeline is meant to be available for everybody and users can raise iss
 Each changed code is documented in Release notes and then versioned.
 
   
-### Following these above steps the github based azure pipeline is integrated with Azure devops
+## Following these above steps the github based azure pipeline is integrated with Azure devops
 
-## Terraform Plan
+### Terraform Plan
 Script terraform-init uses multiple flags to do different stuff
 1. terraform show flag : the flag is used to show the output of terraform plan and also to put the output to an out file
 2. terraform destroy: if at some point we want resources to be destroyed and redeployed, this flag should be used defaults to True/False
