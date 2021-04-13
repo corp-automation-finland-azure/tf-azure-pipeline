@@ -52,10 +52,38 @@ tf-azure-pipeline is meant to be available for everybody and users can raise iss
 Each changed code is documented in Release notes and then versioned.
 
   
-## Following these above steps the github based azure pipeline is integrated with Azure devops
+By Following these above steps the github based azure pipeline will get integrated with Azure devops.
+
+## Stages Descriptions
 
 ### Terraform Plan
-Script terraform-init uses multiple flags to do different stuff
-1. terraform show flag : the flag is used to show the output of terraform plan and also to put the output to an out file
-2. terraform destroy: if at some point we want resources to be destroyed and redeployed, this flag should be used defaults to True/False
+Terraform plan performs following tasts
+1. Checkout pipeline code
+2. Set Terraform backend
+3. Install Terraform
+4. Setup Authentication
+5. Terraform Plan: 
+    In terraform plan, Script terraform-init uses multiple flags to do different stuff
+    1. terraform show flag : the flag is used to show the output of terraform plan and also to put the output to an out file
+    2. terraform destroy: if at some point we want resources to be destroyed and redeployed, this flag should be used defaults to True/False
+6. Compress $(terraform.path) Artifact
+7. publish artifact tfplan
+
+### Terraform publish to wiki
+Terraform publish performs following actions
+1. Checkout pipeline code
+2. Install Terraform
+3. Setup Authentication
+4. Git Clone Wiki
+5. Terraform Show - Output
+6. Write Terraform Show to Wiki
+7. Archive Old Builds
+8. Git Push Wiki - View Link Here
+
+### Terraform Apply
+Terraform Apply performs following actions
+1. Checkout pipeline code
+2. Install Terraform
+3. Setup Authentication
+4. Terraform Apply
 
