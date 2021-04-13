@@ -57,7 +57,7 @@ By Following these above steps the github based azure pipeline will get integrat
 ## Stages Descriptions
 
 ### Terraform Plan
-Terraform plan performs following tasts
+Terraform plan performs following actions
 1. Checkout pipeline code
 2. Set Terraform backend
 3. Install Terraform
