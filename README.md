@@ -41,18 +41,18 @@ The scripts folder contains scripts required by pipeline to run for e.g terrafor
 ## Latest Releases
 v0.0.1
 
-# Build and Test
+## Build and Test
 1. Once pipeline is previewed in azure devops, run the pipeline against desired environment.
 2. Triggers are also created in sample azure-pipeline-{env}.yaml, but can be used based on need.
 3. Check the output in devops pipeline and then in azure portal for which the service connection was created.
 
-# How to Contribute
+## How to Contribute
 tf-azure-pipeline is meant to be available for everybody and users can raise issues and changes based on standard github processes. The code can be forked and pull requests can be created. I the change is relevant and pull request is reviewed and fixed, the changes can then be merged and release can be made.
 
 Each changed code is documented in Release notes and then versioned.
 
   
-## Following these above steps the github based azure pipeline is integrated with Azure devops/
+### Following these above steps the github based azure pipeline is integrated with Azure devops
 
 ## Terraform Plan
 Script terraform-init uses multiple flags to do different stuff
