@@ -1,4 +1,46 @@
-# Introduction 
+# tf-azure-pipeline
+The project is used as a commonpipeline for all the terraform based client projects. The pipeline is divided into three stages
+Stage1. terraform plan
+Stage2. terraform publish to wiki
+Stage3. terraform apply
+
+All the configurations are used from projects which are utilizing the pipeline. for e.g if client has written terraform based resources and wants them to be deployed to azure, the pipeline is an easy fit for the use. 
+
+The pipeline works on any subscription and github integration or wiki integrations, whatever is provided by client code. The format of which acan be referenced by already creted projects.
+
+The pipeline uses repository configuration to clone pipeline code from client code run, so that the resouces are deployed as per client code implementation. The pipeline just acts as processor of information and deployment agent.
+
+The scripts folder contains scripts required by pipeline to run for e.g terraform init, clone repo etc
+
+## Installation process with azure devops
+1. Create Personal Access Token in Github Enterprise Server Account
+2. Once done, create a service principal for azure deployment as per the subscription the resources need to be deployed, go to project settings and choose service connection
+  - Give a name and choose Azure Resource Manager for service/connection type input
+  - Choose service principal (automatic)
+  - Choose scope level - subscription, select the right subscription and do not give any resource group name (otherwise will tie up terraform on resource group scode - Avoid)
+  - Give Service Connection Name and description
+  - Hit Save, the service principal is now created
+  - Use the same name in your variables-pipeline-{env}.yaml when referred for service connection.
+
+3. Once done, In Azure Devops of client tenant create new pipeline, choose github enterprise server (yaml)
+4. Add new connection and provide the enterprise server url and paste the Access token you created in step 1
+5. Additionally create a service connection for github and add it to repositories section of azure-pipeline-{env}.yaml
+6. Create a new pipeline by choosing new azure-pipeline-production.yaml or  azure-pipeline-test.yaml from github enterprise repos based on the environment one wants to run the client code and it will preview in azure devops screen.
+7. Ensure that the variables linked with corresponding azure-pipeline-(environment) are correctly created as per the environment.
+ ```
+   variables: 
+     template: variables-pipeline-{env}.yaml
+ ```
+
+## Software Dependencies
+1. Service Connection for Github code fetch
+2. Service connection for azure portal subscription
+3. Azure devops for whichever tenant from where the pipeline will be run.
+4. PAT for Github and Azure devops seperately to be created.
+
+## Latest Releases
+v0.0.1
+
 TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
 
 # Getting Started
@@ -9,42 +51,15 @@ TODO: Guide users through getting your code up and running on their own system. 
 4.	API references.
 
 # Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+1. Once pipeline is previewed in azure devops, run the pipeline against desired environment.
+2. Triggers are also created in sample azure-pipeline-{env}.yaml, but can be used based on need.
+3. Check the output in devops pipeline and then in azure portal for which the service connection was created.
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+# How to Contribute
+tf-azure-pipeline is meant to be available for everybody and users can raise issues and changes based on standard github processes. The code can be forked and pull requests can be created. I the change is relevant and pull request is reviewed and fixed, the changes can then be merged and release can be made.
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Each changed code is documented in Release notes and then versioned.
 
-# Github Setup with AzureDevops
-- Create Personal Access Token in Github Enterprise Server Account
-
-- Go to Azure Devops and create new pipeline, choose github enterprise server (yaml)
-
-- Add new connection and provide the enterprise server url and paste the Access token you created in step 1
-
-- Choose azurepipeline.yaml and it will preview in azure devops screen.
-
-- To run pipeline you would also require to add variable group, so go to pipeline > Library > Add variable group
-
-- Add all the variables that are required in the group
-
-- Once done, click on secure files and provide your private ssh keys (private ssh keys are required to talk to github server assuming public keys are present there) - TOFIX
-- To pass variable group to pipeline, add it to azure pipeline under variables head like
-    ```
-   variables: 
-     group: az-pipeline-terraform-variables
-    ```
-- Once done, create a service principal, go to project settings and choose service connection
-  - Give a name and choose Azure Resource Manager for service/connection type input
-  - Choose service principal (automatic)
-  - Choose scope level - subscription, select the right subscription and do not give any resource group name (otherwise will tie up terraform on resource group scode - Avoid)
-  - Give Service Connection Name and description
-  - Hit Save, the service principal is now created
-  - Use the same name in your azure pipeline when referred for service principal.
   
 ## Following these above steps the github based azure pipeline is integrated with Azure devops/
 
