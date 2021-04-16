@@ -1,19 +1,19 @@
 # tf-azure-pipeline
-The project is used as a commonpipeline for all the terraform based client projects. The pipeline is divided into three stages
-Stage1. terraform plan
-Stage2. terraform publish to wiki
-Stage3. terraform apply
+This project is used as a common pipeline for all the terraform based client projects. The pipeline is divided into three stages
+ - Stage 1 > terraform plan
+ - Stage 2 > terraform publish to wiki
+ - Stage 3 > terraform apply
 
-All the configurations are used from projects which are utilizing the pipeline. for e.g if client has written terraform based resources and wants them to be deployed to azure, the pipeline is an easy fit for the use. 
+All the configurations are used from the projects using the pipeline. For example if a client has written terraform based resources and wants them to be deployed to azure, this pipeline is well suited for that purpose.
 
-The pipeline works on any subscription and github integration or wiki integrations, whatever is provided by client code. The format of which acan be referenced by already creted projects.
+The pipeline works with any Azure Subscription, Github or Wiki integrations, that may be provided by customer's code for which we can infer format structures by already created projects.
 
-The pipeline uses repository configuration to clone pipeline code from client code run, so that the resouces are deployed as per client code implementation. The pipeline just acts as processor of information and deployment agent.
+The pipeline uses repository configuration to clone pipeline code from executed customer code, so that the resouces are deployed as per client code implementation. The pipeline just acts as processor of information and deployment agent.
 
-The scripts folder contains scripts required by pipeline to run for e.g terraform init, clone repo etc
+The scripts folder contains scripts required by pipeline to run for example terraform init, clone repository etc.
 
 ## Installation process with azure devops
-1. If first time installation, Create or use existing Personal Access Token in Github Enterprise Server Account refer https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token#:~:text=Creating%20a%20token,-Verify%20your%20email&text=In%20the%20upper%2Dright%20corner,Click%20Generate%20new%20token.
+1. Upon first time installation, Create or use existing Personal Access Token in Github Enterprise Server Account refer [creating a Personal Access Token - PAT](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token#:~:text=Creating%20a%20token,-Verify%20your%20email&text=In%20the%20upper%2Dright%20corner,Click%20Generate%20new%20token).
 2. Once done, create a service principal for azure deployment as per the subscription the resources need to be deployed, go to project settings and choose service connection
   - Give a name and choose Azure Resource Manager for service/connection type input
   - Choose service principal (automatic) - https://docs.microsoft.com/en-us/azure/devops/pipelines/library/connect-to-azure?view=azure-devops
