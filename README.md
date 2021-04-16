@@ -20,7 +20,7 @@ The scripts folder contains scripts required by pipeline to run for example terr
   - Choose scope level - subscription, select the right subscription and do not give any resource group name.
   - Give Service Connection Name and description
   - Hit Save, the service principal is now created
-  - Use the same name in your variables-pipeline-{env}.yaml when referred for service connection. The reason there are multiple service principals is that they are used in different parts of the pipeline code and perform different actions, therefore it is possible to separate the permissions assigned to each accordingly. As of 04/2021 we have the following:
+  - Use the same name in your variables-pipeline-{env}.yaml when referred for service connection. The reason there are multiple service principals is that they are used in different parts of the pipeline code and perform different actions, therefore it is possible to separate the permissions assigned to each accordingly. Currently we have two service connectoin.s
     - admin.azureConnection
     - admin.azureEnvironmentConnection
 
