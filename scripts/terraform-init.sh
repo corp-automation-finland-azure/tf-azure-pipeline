@@ -4,7 +4,6 @@ echo "##[debug]  Terraform init script started"
 set -eux  # fail on error
 # terraform -chdir=${terraformWorkingDir}
 terraform init \
-    -chdir=${terraformWorkingDir} \
     -upgrade \
     -backend-config=resource_group_name=${terraformBackendResourceGroup} \
     -backend-config=storage_account_name=${terraformBackendStorageAccount} \
