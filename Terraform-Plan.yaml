@@ -66,7 +66,7 @@ jobs:
           terraformShowFlag: "False"
           terraformDestroy: $(terraform.destroy)
       - task: Bash@3
-        displayName: "Terraform Plan"
+        displayName: "Compress $(terraform.path) Artifact"
         inputs:
           workingDirectory: $(terraform.path)
           filePath: scripts/compressworkdir.sh
@@ -74,7 +74,6 @@ jobs:
           terraformRemoteStateFile: $(terraform.remoteStateFile)
           terraformWorkingDir: $(terraform.workdir)
           terraformPath: $(terraform.path)
-        displayName: "Compress $(terraform.path) Artifact"
       - publish: $(terraform.remoteStateFile).tar.gz
         artifact: "tfplan"
         
