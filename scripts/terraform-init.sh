@@ -5,6 +5,7 @@ set -eux  # fail on error
 # terraform -chdir=${terraformWorkingDir}
 terraform init \
     -upgrade \
+    -backend-config=chdir=${terraformWorkingDir} \
     -backend-config=resource_group_name=${terraformBackendResourceGroup} \
     -backend-config=storage_account_name=${terraformBackendStorageAccount} \
     -backend-config=container_name=${terraformBackendStorageContainer} \
