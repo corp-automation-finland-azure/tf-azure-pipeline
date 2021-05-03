@@ -67,7 +67,7 @@ jobs:
           terraformDestroy: $(terraform.destroy)
       - script: |
           echo "Compressing $(terraform.path) directory..."
-          tar -czf $(terraform.remoteStateFile).tar.gz -C $(terraform.path)/(terraform.workdir)/ .
+          tar -czf $(terraform.remoteStateFile).tar.gz -C $(terraform.path)/$(terraform.workdir)/ .
           ls -l
           echo "##[debug] Compress terraform directory done"
         displayName: "Compress $(terraform.path) Artifact"
