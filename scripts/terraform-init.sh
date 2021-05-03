@@ -22,7 +22,7 @@ if  [[ $terraformDestroy == True ]]; then
 fi
 echo "##[debug] Terraform init complete for build: ${BUILD_BUILDNUMBER}"
 
-terraform -chdir=${terraformWorkingDir} plan -out="${BUILD_BUILDNUMBER}.tfplan" -no-color -input=false
+terraform  plan -out="${BUILD_BUILDNUMBER}.tfplan" -no-color -input=false
 echo "##[debug] Terraform plan complete for build: ${BUILD_BUILDNUMBER}"
 
 [[ $terraformShowFlag == True ]] \
