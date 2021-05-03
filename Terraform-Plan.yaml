@@ -65,11 +65,15 @@ jobs:
           gitToken: $(git.token)
           terraformShowFlag: "False"
           terraformDestroy: $(terraform.destroy)
-      - script: |
-          echo "Compressing $(terraform.path) directory..."
-          tar -czf $(terraform.remoteStateFile).tar.gz -C $(terraform.path)/$(terraform.workdir)/ .
-          ls -l
-          echo "##[debug] Compress terraform directory done"
+      - task: Bash@3
+        displayName: "Terraform Plan"
+        inputs:
+          workingDirectory: $(terraform.path)
+          filePath: scripts/compressworkdir.sh
+        env:
+          terraformRemoteStateFile: $(terraform.remoteStateFile)
+          terraformWorkingDir: $(terraform.workdir)
+          terraformPath: $(terraform.path)
         displayName: "Compress $(terraform.path) Artifact"
       - publish: $(terraform.remoteStateFile).tar.gz
         artifact: "tfplan"

@@ -2,8 +2,10 @@
 echo "##[group]Initialise terraform"
 echo "##[debug]  Terraform init script started"
 set -eux  # fail on error
-# terraform -chdir=${terraformWorkingDir}
-cd ${terraformWorkingDir}
+if  [ -z ${terraformWorkingDir} ]; then
+ cd ${terraformWorkingDir}
+fi
+
 terraform init \
     -upgrade \
     -backend-config=resource_group_name=${terraformBackendResourceGroup} \
