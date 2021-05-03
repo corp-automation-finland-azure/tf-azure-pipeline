@@ -2,7 +2,8 @@
 echo "##[group]Initialise terraform"
 echo "##[debug]  Terraform init script started"
 set -eux  # fail on error
-if  [ -z ${terraformWorkingDir} ]; then
+echo ${terraformWorkingDir}
+if  [ -z "${terraformWorkingDir}" ]; then
  cd ${terraformWorkingDir}
 fi
 
