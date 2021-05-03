@@ -68,7 +68,6 @@ jobs:
       - task: Bash@3
         displayName: "Compress $(terraform.path) Artifact"
         inputs:
-          workingDirectory: $(terraform.path)
           filePath: scripts/compressworkdir.sh
         env:
           terraformRemoteStateFile: $(terraform.remoteStateFile)

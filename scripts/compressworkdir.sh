@@ -3,7 +3,7 @@ echo "Compressing ${terraformPath} directory..."
 pwd
 ls -l
 if  [ -n ${terraformWorkingDir} ]; then
-tar -czf ${terraformRemoteStateFile}.tar.gz -C ${terraformWorkingDir}/ .
+tar -czf ${terraformRemoteStateFile}.tar.gz -C ${terraformPath}/${terraformWorkingDir}/ .
 else
 tar -czf ${terraformRemoteStateFile}.tar.gz -C ${terraformPath} .
 fi
