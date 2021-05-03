@@ -28,6 +28,8 @@ jobs:
             displayName: 'Extract Artifact to $(terraform.remoteStateFile)/Terraform'
             workingDirectory: '$(Pipeline.Workspace)'
           - script: |
+             pwd
+             ls -l
              if [[ ! -f  .terraform/terraform.tfstate ]] ; then
                 echo "##vso[task.logissue type=error] terraform.tfstate (.terraform/terraform.tfstate) is not here, aborting."
                 exit
