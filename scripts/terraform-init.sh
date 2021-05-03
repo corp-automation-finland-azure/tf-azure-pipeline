@@ -2,8 +2,9 @@
 echo "##[group]Initialise terraform"
 echo "##[debug]  Terraform init script started"
 set -eux  # fail on error
-terraform -chdir=${terraformWorkingDir}
+# terraform -chdir=${terraformWorkingDir}
 terraform init \
+    -chdir=${terraformWorkingDir} \
     -upgrade \
     -backend-config=resource_group_name=${terraformBackendResourceGroup} \
     -backend-config=storage_account_name=${terraformBackendStorageAccount} \
@@ -21,7 +22,7 @@ if  [[ $terraformDestroy == True ]]; then
 fi
 echo "##[debug] Terraform init complete for build: ${BUILD_BUILDNUMBER}"
 
-terraform plan -out="${BUILD_BUILDNUMBER}.tfplan" -no-color -input=false
+terraform -chdir=${terraformWorkingDir} plan -out="${BUILD_BUILDNUMBER}.tfplan" -no-color -input=false
 echo "##[debug] Terraform plan complete for build: ${BUILD_BUILDNUMBER}"
 
 [[ $terraformShowFlag == True ]] \
