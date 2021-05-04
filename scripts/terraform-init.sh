@@ -2,7 +2,7 @@
 echo "##[group]Initialise terraform"
 echo "##[debug]  Terraform init script started"
 set -eux  # fail on error
-echo $TERRAFORM_WORKDIR
+[ $# -ge 1 ] && [ -n "$TERRAFORM_WORKDIR" ] then echo $TERRAFORM_WORKDIR else echo "unhandled variable" fi
 if  [ ! -z ${terraformWorkingDir} ]; then
  cd ${terraformWorkingDir}
 fi
