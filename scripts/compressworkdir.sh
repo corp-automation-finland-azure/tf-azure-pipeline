@@ -1,7 +1,7 @@
  #!/bin/bash
 echo "Compressing ${terraformPath} directory..."
-if  [ -n ${terraformWorkingDir} ]; then
-    tar -czf ${terraformRemoteStateFile}.tar.gz -C ${terraformPath}/${terraformWorkingDir}/ .
+if  [ ! -z ${TERRAFORM_WORKDIR:+""}]; then
+    tar -czf ${terraformRemoteStateFile}.tar.gz -C ${terraformPath}/$TERRAFORM_WORKDIR/ .
 else
     tar -czf ${terraformRemoteStateFile}.tar.gz -C ${terraformPath} .
 fi
