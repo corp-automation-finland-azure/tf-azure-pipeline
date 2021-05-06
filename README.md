@@ -106,13 +106,11 @@ Terraform Apply performs following actions
 | settings.project | Azure devops project where pipeline will be run | az-pipeline-terraform |
 | settings.department | Azure devops organization where pipeline will be run | az-do |
 | setting.branch | It is used to switch to specific branch of the source code. Very much required while testing | feature/test |
-
 | terraform.backendLocation | location of datacenter | West Europe |
 | terraform.path | Actual path where pipeline agent will find files to execute for source code | central-fileshare-cache |
 | terraform.version | Version of terraform tobe used while build and deployment | 0.15.1 |
 | terraform.destroy | It is used to destroy terraform resources in mentioned subscription | true/false |
 | terraform.workdir | It is used to switch to specific terraform directory of the source code so that pipeline knows what to build and deploy| es-connectivity/terraform |
-
 | terraform.remoteStateFileResourceGroup | Resource group for State file to use with terraform | tf-xx-rg |
 | terraform.remoteStateFileStorageAccount | Storage Account to store terraform state file | tfxxsa |
 | terraform.remoteStateFileBlobContainer | Blob Container used to store terraform state file content | tf-xx-bc |
@@ -120,7 +118,6 @@ Terraform Apply performs following actions
 | settings.wikireleasedirectory | Release directory to add wikis for projects in azure devops | tf-xx.tfstate |
 | settings.cloneSourceWiki | Azure devops Source code environment for wiki | azuredevops |
 | settings.cloneSourceTerraformCode | Source code environment for terraform code | github |
-
 | settings.azureDevopsUrl | Azure devops Source code environment url for wiki publishing | dev.azure.com |
 | settings.githubUrl | Github Enterprise Server url to fetch terraform source code | git.evry.cloud |
 | settings.pipelineProject | Pipeline project to use for build (not in use at the moment) | tf-azure-pipeline |
