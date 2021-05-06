@@ -92,7 +92,7 @@ Terraform Apply performs following actions
 ## Configurations
 
 | Configuration | Descriptopn  | example-values  |
-| :-----: | :-: | :-: |
+| :----- | :- | :- |
 | admin.azureConnection | service connection to deploy resources to azure | azdo-management-principal |
 | azureEnvironmentConnection | service connection for subscription storing state files and storage account | azdo-management-principal |
 | admin.azureDevOpsOrganization | Organization where azure devops project is running the pipeline | az-do |
