@@ -91,7 +91,7 @@ Terraform Apply performs following actions
 
 ## Configurations
 
-| Configuration | Descriptopn  | example-values  |
+| Configuration | Description  | example-values  |
 | :----- | :- | :- |
 | admin.azureConnection | service connection to deploy resources to azure | azdo-management-principal |
 | azureEnvironmentConnection | service connection for subscription storing state files and storage account | azdo-management-principal |
@@ -121,7 +121,7 @@ Terraform Apply performs following actions
 | settings.azureDevopsUrl | Azure devops Source code environment url for wiki publishing | dev.azure.com |
 | settings.githubUrl | Github Enterprise Server url to fetch terraform source code | git.evry.cloud |
 | settings.pipelineProject | Pipeline project to use for build (not in use at the moment) | tf-azure-pipeline |
-| TF_VAR_ENVIRONMENT | Environment variable to distinguish variables when different environment are used | $(environment) |
+| TF_VAR_ENVIRONMENT | Environment variable to distinguish variables when different environment are used, also is used by .tf files directly | $(environment) |
 
 
 
