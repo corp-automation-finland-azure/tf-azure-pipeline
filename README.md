@@ -89,3 +89,42 @@ Terraform Apply performs following actions
 3. Setup Authentication
 4. Terraform Apply
 
+## Configurations
+
+| Configuration | Descriptopn  | example-values  |
+| :-----: | :-: | :-: |
+| admin.azureConnection | service connection to deploy resources to azure | azdo-management-principal |
+| azureEnvironmentConnection | service connection for subscription storing state files and storage account | azdo-management-principal |
+| admin.azureDevOpsOrganization | Organization where azure devops project is running the pipeline | az-do |
+| admin.azureDevOpsProject | Project where azure devops will fetch the code from github | central-fileshare-cache |
+| admin.azureGithubClientOrganization | Organization where github source terraform code is kept | corp-automation-finland-azure |
+| admin.wikiProject | Azure devops project where wiki is created | wiki |
+| admin.subscriptionId | Subscription id of the subscription where current terraform source code will be deployed | xxx |
+| git.token | Personal Access token created in github to fetch code | xxx |
+| git.tokenAzuredevops | Personal Access token created in azure devops to update wiki | xxx |
+| settings.location | location of datacenter | westeurope |
+| settings.project | Azure devops project where pipeline will be run | az-pipeline-terraform |
+| settings.department | Azure devops organization where pipeline will be run | az-do |
+| setting.branch | It is used to switch to specific branch of the source code. Very much required while testing | feature/test |
+
+| terraform.backendLocation | location of datacenter | West Europe |
+| terraform.path | Actual path where pipeline agent will find files to execute for source code | central-fileshare-cache |
+| terraform.version | Version of terraform tobe used while build and deployment | 0.15.1 |
+| terraform.destroy | It is used to destroy terraform resources in mentioned subscription | true/false |
+| terraform.workdir | It is used to switch to specific terraform directory of the source code so that pipeline knows what to build and deploy| es-connectivity/terraform |
+
+| terraform.remoteStateFileResourceGroup | Resource group for State file to use with terraform | tf-xx-rg |
+| terraform.remoteStateFileStorageAccount | Storage Account to store terraform state file | tfxxsa |
+| terraform.remoteStateFileBlobContainer | Blob Container used to store terraform state file content | tf-xx-bc |
+| terraform.remoteStateFile | Terraform State file | tf-xx.tfstate |
+| settings.wikireleasedirectory | Release directory to add wikis for projects in azure devops | tf-xx.tfstate |
+| settings.cloneSourceWiki | Azure devops Source code environment for wiki | azuredevops |
+| settings.cloneSourceTerraformCode | Source code environment for terraform code | github |
+
+| settings.azureDevopsUrl | Azure devops Source code environment url for wiki publishing | dev.azure.com |
+| settings.githubUrl | Github Enterprise Server url to fetch terraform source code | git.evry.cloud |
+| settings.pipelineProject | Pipeline project to use for build (not in use at the moment) | tf-azure-pipeline |
+| TF_VAR_ENVIRONMENT | Environment variable to distinguish variables when different environment are used | $(environment) |
+
+
+
