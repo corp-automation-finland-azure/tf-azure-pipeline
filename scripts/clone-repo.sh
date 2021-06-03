@@ -3,6 +3,7 @@ echo "##[group]Clone GitHub/Git repository"
 echo "##[debug] Clone repositoy script started"
 echo "$SETTINGS_GITHUB"
 echo "$SETTINGS_AZUREDEVOPS"
+echo "$cloneUrl"
 if [[ "$cloneUrl" == "$SETTINGS_GITHUB" ]]; then
     echo "##[debug] Cloning terraform source code"
     echo "##vso[task.setvariable variable=GIT_TOKEN]$gitToken"
