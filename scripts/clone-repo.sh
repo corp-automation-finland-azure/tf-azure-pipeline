@@ -14,6 +14,7 @@ if [[ "$cloneUrl" == "$SETTINGS_GITHUB" ]]; then
     echo "##[debug] Git clone completed"
 elif [[ "$cloneUrl" == "$SETTINGS_AZUREDEVOPS" ]]; then
     echo "##[debug] Cloning wiki"
+    echo "##vso[task.setvariable variable=GIT_TOKEN]$gitToken"
     if [ -d "$targetDir" ]; then rm -rf $targetDir; fi
     # azdo is generic key for azure devops repos
     git clone https://azdo:$gitToken@$SETTINGS_AZUREDEVOPSURL/$targetGitOrganization/$targetProject/_git/$targetDir $targetDir
