@@ -32,6 +32,7 @@ jobs:
           gitToken: $(git.token)
           targetGitOrganization: $(admin.azureGithubClientOrganization)
           targetDir: $(terraform.path)
+          targetProject: $(settings.project)
           cloneUrl: $(settings.cloneSourceTerraformCode)
           branchName: $(settings.branch)
       - task: AzureCLI@2
