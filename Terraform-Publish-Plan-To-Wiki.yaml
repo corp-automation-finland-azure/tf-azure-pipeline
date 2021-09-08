@@ -2,7 +2,10 @@ jobs:
 - job: Publish
   displayName: 'Publish to Wiki'
   pool:
+  - ${{ if not(settings.agentpool) }}:
     vmImage: 'ubuntu-latest'
+  - ${{ if $(settings.agentpool) }}:
+    name: $(settings.agentpool)
   steps:
   - checkout: pipeline-terraform
     persistCredentials: true
