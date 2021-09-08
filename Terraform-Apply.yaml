@@ -7,7 +7,6 @@ jobs:
       vmImage: 'ubuntu-latest'
     ${{ if gt(length('${{ settings.agentpool }}'),1) }}:
       name: $(settings.agentpool)
-  steps:
   workspace:
     clean: all
   strategy:
