@@ -3,7 +3,7 @@ jobs:
   displayName: 'Terraform Apply'
   environment: Test
   pool:
-  - ${{ if not(settings.agentpool) }}:
+  - ${{ if not($(settings.agentpool)) }}:
     vmImage: 'ubuntu-latest'
   - ${{ if $(settings.agentpool) }}:
     name: $(settings.agentpool)
