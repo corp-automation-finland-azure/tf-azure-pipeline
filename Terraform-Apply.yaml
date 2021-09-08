@@ -3,10 +3,10 @@ jobs:
   displayName: 'Terraform Apply'
   environment: Test
   pool:
-  - ${{ if not($(settings.agentpool)) }}:
-    vmImage: 'ubuntu-latest'
-  - ${{ if $(settings.agentpool) }}:
-    name: $(settings.agentpool)
+    ${{ if le(length($(settings.agentpool)),1) }}:
+      vmImage: 'ubuntu-latest'
+    ${{ if gt(length($(settings.agentpool)),1) }}:
+      name: $(settings.agentpool)
   steps:
   workspace:
     clean: all
