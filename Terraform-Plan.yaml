@@ -4,8 +4,8 @@ jobs:
     pool:
       ${{ if eq('${{ settings.agentpool }}','') }}:
         vmImage: 'ubuntu-latest'
-      ${{ if ne('${{ settings.agentpool }}','') }}:
-        name: $(settings.agentpool)
+      # ${{ if ne('${{ settings.agentpool }}','') }}:
+      #   name: $(settings.agentpool)
     steps:
       - checkout: pipeline-terraform
         clean: true
