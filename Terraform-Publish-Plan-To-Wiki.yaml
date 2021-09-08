@@ -2,9 +2,9 @@ jobs:
 - job: Publish
   displayName: 'Publish to Wiki'
   pool:
-    ${{ if le(length($(settings.agentpool)),1) }}:
+    ${{ if le(length('${{ settings.agentpool }}'),1) }}:
       vmImage: 'ubuntu-latest'
-    ${{ if gt(length($(settings.agentpool)),1) }}:
+    ${{ if gt(length('${{ settings.agentpool }}'),1) }}:
       name: $(settings.agentpool)
   steps:
   - checkout: pipeline-terraform
