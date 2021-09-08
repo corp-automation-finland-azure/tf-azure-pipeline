@@ -4,7 +4,7 @@ jobs:
     pool:
       ${{ if eq('${{ settings.agentpool }}','') }}:
         vmImage: 'ubuntu-latest'
-      ${{ if not('${{ settings.agentpool }}') }}:
+      ${{ if '${{ settings.agentpool }}' }}:
         name: $(settings.agentpool)
     steps:
       - checkout: pipeline-terraform
