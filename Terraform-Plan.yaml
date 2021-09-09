@@ -8,7 +8,7 @@ jobs:
     pool:
      ${{ if and(gt(length(variables['agentpool']),1),eq(contains('${{ settings.agentpool }}','settings'),false)) }}:
       name: $(agentpool)
-     ${{ if le(length(variables['agentpool']),1) }}:
+     ${{ if or(le(length(variables['agentpool']),1),eq(contains('${{ settings.agentpool }}','settings'),true)) }}:
       vmImage: 'ubuntu-latest'
      
     steps:
