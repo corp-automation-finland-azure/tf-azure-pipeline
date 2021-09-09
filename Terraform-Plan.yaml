@@ -3,9 +3,10 @@ jobs:
     displayName: "Terraform Plan"
     pool:
       vmImage: 'ubuntu-latest'
-        condition: and(succeeded(), eq('${{ settings.agentpool }}',''))
+      condition: and(succeeded(), eq('${{ settings.agentpool }}',''))
+    pool:
       name: $(settings.agentpool)
-        condition: and(failed(), eq('${{ settings.agentpool }}',''))
+      condition: and(failed(), eq('${{ settings.agentpool }}',''))
     steps:
       - checkout: pipeline-terraform
         clean: true
