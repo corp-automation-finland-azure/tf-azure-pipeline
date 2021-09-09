@@ -6,7 +6,7 @@ jobs:
       value: $(settings.agentpool3)
     displayName: "Terraform Plan"
     pool:
-     ${{ if eq(gt(length(variables['agentpool']),5),true) }}:
+     ${{ if eq(variables['agentpool'],true) }}:
       name: $(settings.agentpool3)
      ${{ if eq('${{ settings.agentpool }}','') }}:
       vmImage: 'ubuntu-latest'
@@ -15,6 +15,9 @@ jobs:
       - checkout: pipeline-terraform
         clean: true
         persistCredentials: true
+      - pwsh: |
+        Write-Host ("Value of agentpool is: {0}" -f '$(agentpool)')
+      displayName: 'Determined SubPool'
       - task: AzureCLI@2
         displayName: Set Terraform backend
         inputs:
