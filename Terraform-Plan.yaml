@@ -16,7 +16,6 @@ jobs:
         clean: true
         persistCredentials: true
       - script: echo "variables['agentpool']"
-      displayName: 'Determined SubPool'
       - task: AzureCLI@2
         displayName: Set Terraform backend
         inputs:
