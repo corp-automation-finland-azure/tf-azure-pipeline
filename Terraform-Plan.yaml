@@ -3,9 +3,9 @@ jobs:
     displayName: "Terraform Plan"
     pool:
       ${{ if eq('${{ settings.agentpool }}','') }}:
-        vmImage: 'ubuntu-latest'
+      vmImage: 'ubuntu-latest'
       ${{ if gt(length('${{ settings.agentpool2 }}'),5) }}:
-        name: $(settings.agentpool2)
+      name: $(settings.agentpool2)
     steps:
       - checkout: pipeline-terraform
         clean: true
