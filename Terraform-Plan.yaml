@@ -2,10 +2,9 @@ jobs:
   - job: Plan
     displayName: "Terraform Plan"
     pool:
-      vmImage: 'ubuntu-latest'
+    - vmImage: 'ubuntu-latest'
       condition: and(succeeded(), eq('${{ settings.agentpool }}',''))
-    pool:
-      name: $(settings.agentpool)
+    - name: $(settings.agentpool)
       condition: and(failed(), eq('${{ settings.agentpool }}',''))
     steps:
       - checkout: pipeline-terraform
