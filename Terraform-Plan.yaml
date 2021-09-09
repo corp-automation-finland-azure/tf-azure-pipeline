@@ -6,7 +6,7 @@ jobs:
       value: $(settings.agentpool3)
     displayName: "Terraform Plan"
     pool:
-     ${{ if eq(gt(length('${{ agentpool }}'),5),true) }}:
+     ${{ if eq(gt(length(variables['agentpool']),5),true) }}:
       name: $(settings.agentpool3)
      ${{ if eq('${{ settings.agentpool }}','') }}:
       vmImage: 'ubuntu-latest'
