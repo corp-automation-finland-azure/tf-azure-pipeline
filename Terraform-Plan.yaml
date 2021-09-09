@@ -15,8 +15,7 @@ jobs:
       - checkout: pipeline-terraform
         clean: true
         persistCredentials: true
-      - pwsh: |
-        Write-Host ("Value of agentpool is: {0}" -f '$(agentpool)')
+      - script: echo "variables['agentpool']"
       displayName: 'Determined SubPool'
       - task: AzureCLI@2
         displayName: Set Terraform backend
