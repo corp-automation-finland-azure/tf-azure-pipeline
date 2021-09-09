@@ -3,11 +3,11 @@ jobs:
   - job: Plan
     variables:
     - name: agentpool
-      value: variables['settings.agentpool']
+      value: $(settings.agentpool)
     displayName: "Terraform Plan"
     pool:
-     ${{ if gt(length(variables['agentpool']),1) }}:
-      name: variables['agentpool']
+     ${{ if gt(length(${{ variables.agentpool }}),1) }}:
+      name: ${{ variables.agentpool }}
      ${{ if le(length(variables['agentpool']),1) }}:
       vmImage: 'ubuntu-latest'
      
