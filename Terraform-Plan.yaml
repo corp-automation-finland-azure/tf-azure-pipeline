@@ -2,8 +2,8 @@ jobs:
   - job: Plan
     displayName: "Terraform Plan"
     pool:
-     ${{ if gt(length('${{ settings.agentpool1 }}'),5) }}:
-      name: $(settings.agentpool2)
+     ${{ if eq(gt(length('${{ settings.agentpool1 }}'),5),true) }}:
+      name: $(settings.agentpool3)
      ${{ if eq('${{ settings.agentpool }}','') }}:
       vmImage: 'ubuntu-latest'
      
