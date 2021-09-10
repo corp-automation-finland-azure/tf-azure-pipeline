@@ -3,7 +3,7 @@ jobs:
   - job: Plan
     variables:
     - name: agentpool
-      value: $[settings.agentpool]
+      value: $[variables.settings_agentpool]
     displayName: "Terraform Plan {{ variables['agentpool'] }}"
     pool:
      ${{ if eq(gt(length('${{ agentpool }}'),1),true) }}:
