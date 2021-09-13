@@ -6,7 +6,9 @@ jobs:
      ${{ if eq(gt(length('$[variables.settings_agentpool]'),1),true) }}:
       name: $[variables.settings_agentpool]
      
-      vmImage: 'ubuntu-latest'  
+      vmImage: 'ubuntu-latest' 
+    workspace:
+      clean: all 
     steps:
       - checkout: pipeline-terraform
         clean: true
