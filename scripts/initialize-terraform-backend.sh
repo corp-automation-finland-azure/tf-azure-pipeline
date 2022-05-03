@@ -6,6 +6,7 @@ set -eu # fail on error
 LOC=$terraformBackendLocation
 RG=$terraformBackendResourceGroup
 SA=$terraformBackendStorageAccount
+TAGS=$tags
 export AZURE_STORAGE_ACCOUNT=$terraformBackendStorageAccount
 BC=$terraformBackendStorageContainer
 export AZURE_STORAGE_KEY="$(az storage account keys list -g "$RG" -n "$SA" --query '[0].value' -o tsv)"
@@ -13,7 +14,7 @@ BLOB=$terraformRemoteStateFile
 # export TERRAFORM_BREAK_LEASE=1
 echo "##[debug] Variables have been set"
 if test -z "$AZURE_STORAGE_KEY"; then
-    az group create --location "$LOC" --resource-group "$RG"
+    az group create --location "$LOC" --resource-group "$RG" --tags $TAGS
     az configure --defaults group="$RG" location="$LOC"
     az storage account create -n "$SA" -o none
     # there is an issue here because we need for Azure to provision storage account before proceeding

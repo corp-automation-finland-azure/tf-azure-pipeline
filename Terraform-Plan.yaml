@@ -26,6 +26,7 @@ jobs:
           terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)
           terraformBackendStorageContainer: $(terraform.remoteStateFileBlobContainer)
           terraformRemoteStateFile: $(terraform.remoteStateFile)
+          tags: $(terraform.tags)
       - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
         displayName: Install Terraform
         inputs:
