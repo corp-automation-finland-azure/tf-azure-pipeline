@@ -13,7 +13,7 @@ terraform init \
     -backend-config=storage_account_name=${terraformBackendStorageAccount} \
     -backend-config=container_name=${terraformBackendStorageContainer} \
     -backend-config=key=${terraformRemoteStateFile} \
-    -backend-config=subscription_id=$subscriptionId \
+    -backend-config=subscription_id=$ARM_SUBSCRIPTION_ID \
     -backend-config=tenant_id=$ARM_TENANT_ID \
     -backend-config=client_id=$ARM_CLIENT_ID \
     -backend-config=client_secret="$ARM_CLIENT_SECRET" \
