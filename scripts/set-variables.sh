@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "##[group]Set backend variables and git configurations"
 echo "##[debug] Set variables script started"
-echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(az account show --query="id" -o tsv)"
+echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]${ARM_SUBSCRIPTION_ID}"
 echo "##vso[task.setvariable variable=ARM_CLIENT_ID]${servicePrincipalId}"
 echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET]${servicePrincipalKey}"
 echo "##vso[task.setvariable variable=ARM_TENANT_ID]$(az account show --query="tenantId" -o tsv)"
