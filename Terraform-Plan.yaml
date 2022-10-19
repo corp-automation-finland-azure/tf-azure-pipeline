@@ -26,6 +26,7 @@ jobs:
           terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)
           terraformBackendStorageContainer: $(terraform.remoteStateFileBlobContainer)
           terraformRemoteStateFile: $(terraform.remoteStateFile)
+          subscriptionId: $(admin.subscriptionId)
           tags: $(terraform.tags)
       - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
         displayName: Install Terraform
@@ -67,6 +68,7 @@ jobs:
           terraformRemoteStateFile: $(terraform.remoteStateFile)
           terraformWorkingDir: $(terraform.workdir)
           ARM_SUBSCRIPTION_ID: $ARM_SUBSCRIPTION_ID
+          subscriptionId: $(admin.subscriptionId)
           ARM_TENANT_ID: $ARM_TENANT_ID
           ARM_CLIENT_ID: $ARM_CLIENT_ID
           ARM_CLIENT_SECRET: $ARM_CLIENT_SECRET

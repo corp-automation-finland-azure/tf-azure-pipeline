@@ -11,9 +11,11 @@ export AZURE_STORAGE_ACCOUNT=$terraformBackendStorageAccount
 BC=$terraformBackendStorageContainer
 export AZURE_STORAGE_KEY="$(az storage account keys list -g "$RG" -n "$SA" --query '[0].value' -o tsv)"
 BLOB=$terraformRemoteStateFile
+SUB_ID = $subscriptionId
 # export TERRAFORM_BREAK_LEASE=1
 echo "##[debug] Variables have been set"
 if test -z "$AZURE_STORAGE_KEY"; then
+    az account set --subscription "$SUB_ID"
     az group create --location "$LOC" --resource-group "$RG" --tags $TAGS
     az configure --defaults group="$RG" location="$LOC"
     az storage account create -n "$SA" -o none
