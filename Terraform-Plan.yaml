@@ -68,7 +68,6 @@ jobs:
           terraformBackendStorageContainer: $(terraform.remoteStateFileBlobContainer)
           terraformRemoteStateFile: $(terraform.remoteStateFile)
           terraformWorkingDir: $(terraform.workdir)
-          # ARM_SUBSCRIPTION_ID: $ARM_SUBSCRIPTION_ID
           subscriptionId: $(admin.subscriptionId)
           ARM_TENANT_ID: $ARM_TENANT_ID
           ARM_CLIENT_ID: $ARM_CLIENT_ID
