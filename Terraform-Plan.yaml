@@ -55,6 +55,7 @@ jobs:
           terraformBackendStorageAccount: $(terraform.remoteStateFileStorageAccount)
           targetGitOrganization: $(admin.azureDevOpsOrganization)
           gitToken: $(git.token)
+          ARM_SUBSCRIPTION_ID: $ARM_SUBSCRIPTION_ID
           addRedirect: True
       - task: Bash@3
         displayName: "Terraform Plan"
